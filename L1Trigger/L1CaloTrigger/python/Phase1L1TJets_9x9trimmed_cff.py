@@ -11,17 +11,21 @@ l1tPhase1JetProducer9x9trimmed = l1tPhase1JetProducer.clone(
 	  outputCollectionName = "UncalibratedPhase1L1TJetFromPfCandidates"
 )
 
-l1tPhase1JetCalibrator9x9trimmed = l1tPhase1JetCalibrator_9x9trimmed.clone(
-	  inputCollectionTag = ("l1tPhase1JetProducer9x9trimmed", "UncalibratedPhase1L1TJetFromPfCandidates", ""),
-	  outputCollectionName = "Phase1L1TJetFromPfCandidates"
+Phase1L1TJetCalibrator9x9trimmed.inputCollectionTag = cms.InputTag("Phase1L1TJetProducer9x9trimmed", "UncalibratedPhase1L1TJetFromPfCandidates", "")
+Phase1L1TJetCalibrator9x9trimmed.outputCollectionName = cms.string("Phase1L1TJetFromPfCandidates")
+
+Phase1L1TJetCalibrator9x9trimmedUnsorted = Phase1L1TJetCalibrator9x9trimmed.clone(
+	  inputCollectionTag = cms.InputTag("Phase1L1TJetProducer9x9trimmed", "UncalibratedPhase1L1TJetFromPfCandidatesUnsorted", ""),
+    outputCollectionName = cms.string("Phase1L1TJetFromPfCandidates")
 )
 
-l1tPhase1JetSumsProducer9x9trimmed = l1tPhase1JetSumsProducer.clone(
-  inputJetCollectionTag = ("l1tPhase1JetCalibrator9x9trimmed", "Phase1L1TJetFromPfCandidates"),
+Phase1L1TJetSumsProducer9x9trimmed = Phase1L1TJetSumsProducer.clone(
+  inputJetCollectionTag = cms.InputTag("Phase1L1TJetCalibrator9x9trimmedUnsorted", "Phase1L1TJetFromPfCandidates"),
 )
 
-L1TPhase1JetsSequence9x9trimmed = cms.Sequence(
-  l1tPhase1JetProducer9x9trimmed +
-  l1tPhase1JetCalibrator9x9trimmed + 
-  l1tPhase1JetSumsProducer9x9trimmed
+Phase1L1TJetsSequence9x9trimmed = cms.Sequence(
+  Phase1L1TJetProducer9x9trimmed +
+  Phase1L1TJetCalibrator9x9trimmed + 
+  Phase1L1TJetCalibrator9x9trimmedUnsorted +
+  Phase1L1TJetSumsProducer9x9trimmed
 )
