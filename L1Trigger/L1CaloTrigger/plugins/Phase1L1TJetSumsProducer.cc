@@ -37,7 +37,7 @@ Description: Computes HT and MHT from phase-1-like jets
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/dataformats/datatypes.h"
+#include "DataFormats/L1TParticleFlow/interface/datatypes.h"
 #include <cmath>
 
 class Phase1L1TJetSumsProducer : public edm::one::EDProducer<edm::one::SharedResources> {

@@ -4,19 +4,18 @@ import FWCore.Utilities.FileUtils as FileUtils # ADDED
 process = cms.Process("TEST")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 10
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
-# fileList = FileUtils.loadListFromFile('ttbar_jets.txt')
-fileList = FileUtils.loadListFromFile('ttbar_jets.txt')
+fileList = FileUtils.loadListFromFile('ttbar.txt')
 readFiles = cms.untracked.vstring(*fileList)
 
 process.source = process.source = cms.Source("PoolSource",
-  fileNames = readFiles,
-  # fileNames = cms.untracked.vstring(
-  #  "file:debugInputs.root",
-  # ),
+  # fileNames = readFiles,
+  fileNames = cms.untracked.vstring(
+   "file:test.root",
+  ),
 # skipEvents = cms.untracked.uint32(3)
 )
 
@@ -28,7 +27,7 @@ process.out = cms.OutputModule("PoolOutputModule",
   outputCommands = cms.untracked.vstring(
     "drop *",
     "keep *_Phase1L1TJetSeedProducer9x9trimmed_*_*",
-    "keep *_l1ctLayer1_*_*"
+    "keep *_l1tLayer1_Puppi_*"
   ),
 )
 

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from math import pi
 
-from Phase1L1TJets_sincosLUT_cff import sinPhi, cosPhi
+from L1Trigger.L1CaloTrigger.Phase1L1TJets_sincosLUT_cff import sinPhi, cosPhi
 
 caloEtaSegmentation = cms.vdouble(
 -3 , -2.91491519955 , -2.83201206065 , -2.74910892175 , -2.66620578285 , -2.58330264395 ,
@@ -16,8 +16,8 @@ caloEtaSegmentation = cms.vdouble(
 2.5 , 2.58508480045 , 2.66798793935 , 2.75089107825 , 2.83379421715 , 2.91669735605 , 3
 )
 
-Phase1L1TJetSeedProducer9x9trimmed = cms.EDProducer('Phase1L1TJetSeedProducer',
-  inputCollectionTag = cms.InputTag("l1ctLayer1", "Puppi"),
+l1tPhase1JetSeedProducer9x9trimmed = cms.EDProducer('Phase1L1TJetSeedProducer',
+  inputCollectionTag = cms.InputTag("l1tLayer1", "Puppi"),
   etaBinning = caloEtaSegmentation,
   nBinsPhi = cms.uint32(72),
   phiLow = cms.double(-3.15),

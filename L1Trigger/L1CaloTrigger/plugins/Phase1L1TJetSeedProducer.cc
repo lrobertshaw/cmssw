@@ -21,8 +21,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/dataformats/puppi.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/common/bitonic_hybrid_sort_ref.h"
+#include "DataFormats/L1TParticleFlow/interface/puppi.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/common/bitonic_hybrid_sort_ref.h"
 
 #include "TH2F.h"
 

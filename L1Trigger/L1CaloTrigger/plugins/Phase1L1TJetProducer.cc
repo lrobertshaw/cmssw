@@ -49,9 +49,9 @@ Description: Produces jets with a phase-1 like sliding window algorithm using a 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/dataformats/datatypes.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/dataformats/gt_datatypes.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/common/bitonic_hybrid_sort_ref.h"
+#include "DataFormats/L1TParticleFlow/interface/datatypes.h"
+#include "DataFormats/L1TParticleFlow/interface/gt_datatypes.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/common/bitonic_hybrid_sort_ref.h"
 
 #include "TH2F.h"
 
@@ -488,7 +488,6 @@ void Phase1L1TJetProducer::sortJets(const std::vector<reco::CaloJet> unsortedJet
   // Rotate to first phi region found in firmware
   for ( unsigned iEtaRegion = 0; iEtaRegion < nEtaRegions; ++iEtaRegion ) {
     for ( unsigned iPhiRegion = 0; iPhiRegion < 2; ++ iPhiRegion ) {
-      std::cout << "N something : " << jetsPerEtaPhiRegions[iEtaRegion][iPhiRegion].size() << std::endl;
       std::rotate( jetsPerEtaPhiRegions[iEtaRegion][iPhiRegion].begin(), jetsPerEtaPhiRegions[iEtaRegion][iPhiRegion].begin()+8, jetsPerEtaPhiRegions[iEtaRegion][iPhiRegion].end() );
     }
   }
