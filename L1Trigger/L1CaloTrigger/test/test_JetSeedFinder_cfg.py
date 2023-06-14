@@ -20,8 +20,18 @@ process.source = process.source = cms.Source("PoolSource",
 )
 
 # Loads jet seeding sequence
-process.load('L1Trigger.L1CaloTrigger.Phase1L1TJetSeeds_cff')
-
+from L1Trigger.L1CaloTrigger.Phase1L1TJetSeedProducer_cfi import l1tPhase1JetSeedProducer9x9trimmed
+process.seeds9x9Trimmed = l1tPhase1JetSeedProducer9x9trimmed
+# Loads seeded cone sequence
+from L1Trigger.Phase2L1ParticleFlow.l1tDeregionizerProducer_cfi import l1tDeregionizerProducer
+process.deregionizer = l1tDeregionizerProducer
+from L1Trigger.Phase2L1ParticleFlow.l1tSeedConePFJetProducer_cfi import l1tSeedConePFJetEmulatorProducer
+process.seededcone = l1tSeedConePFJetEmulatorProducer.clone(
+    debug = True,
+    useExternalSeeds = True,
+    JetSeeds = ('seeds9x9Trimmed', 'histoJetSeeds9x9trimmed')
+)
+    
 process.out = cms.OutputModule("PoolOutputModule",
   fileName = cms.untracked.string('myOutputFile_ttbar.root'),
   outputCommands = cms.untracked.vstring(
@@ -31,6 +41,6 @@ process.out = cms.OutputModule("PoolOutputModule",
   ),
 )
 
-process.p = cms.Path(process.Phase1L1TJetSeedsSequence )
+process.p = cms.Path(process.seeds9x9Trimmed * process.deregionizer * process.seededcone )
 
 process.e = cms.EndPath(process.out)

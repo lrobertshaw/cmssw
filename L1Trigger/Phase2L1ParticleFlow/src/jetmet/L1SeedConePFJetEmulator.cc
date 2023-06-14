@@ -89,7 +89,7 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const
   return jet;
 }
 
-std::vector<L1SCJetEmu::Jet> L1SCJetEmu::emulateEvent(std::vector<Particle>& parts) const {
+std::vector<L1SCJetEmu::Jet> L1SCJetEmu::emulateEvent(std::vector<Particle>& parts, std::vector<Particle>& seeds, bool useExternalSeeds ) const {
   // The fixed point algorithm emulation
   std::vector<Particle> work;
   work.resize(parts.size());
@@ -97,11 +97,13 @@ std::vector<L1SCJetEmu::Jet> L1SCJetEmu::emulateEvent(std::vector<Particle>& par
 
   std::vector<Jet> jets;
   jets.reserve(nJets_);
-  while (!work.empty() && jets.size() < nJets_) {
+  while ( ( !work.empty() && jets.size() < nJets_ )  ) {
+    if ( useExternalSeeds && seeds.size() == 0 ) break; // Can this be combined with previous line?
     // Take the highest pt candidate as a seed
     // Use the firmware reduce function to find the same seed as the firmware
     // in case there are multiple seeds with the same pT
-    Particle seed = reduce(work, op_max);
+    // ... or use external seed if configured to do so
+    Particle seed = (useExternalSeeds) ? seeds.at(0) : reduce(work, op_max);
 
     // Get the particles within a coneSize_ of the seed
     std::vector<Particle> particlesInCone;
@@ -109,16 +111,28 @@ std::vector<L1SCJetEmu::Jet> L1SCJetEmu::emulateEvent(std::vector<Particle>& par
       return inCone(seed, part);
     });
     if (debug_) {
+      std::cout << useExternalSeeds << " " << seeds.size() << " " << !( !useExternalSeeds || seeds.size() == 0 ) << " " << work.empty() << " " << jets.size() << std::endl;
       dbgCout() << "Seed: " << seed.hwPt << ", " << seed.hwEta << ", " << seed.hwPhi << std::endl;
+      std::cout << "N particles : " << particlesInCone.size() << std::endl;
       std::for_each(particlesInCone.begin(), particlesInCone.end(), [&](Particle& part) {
         dbgCout() << "  Part: " << part.hwPt << ", " << part.hwEta << ", " << part.hwPhi << std::endl;
         inCone(seed, part);
       });
     }
-    jets.push_back(makeJet_HW(particlesInCone));
-    // remove the clustered particles
-    work.erase(std::remove_if(work.begin(), work.end(), [&](const Particle& part) { return inCone(seed, part); }),
-               work.end());
+    if ( particlesInCone.size() > 0 ) { // Possible hack - some seeds don't have any clustered particles.  Need to understand if real effect (could be) or a bug
+      jets.push_back(makeJet_HW(particlesInCone));
+      // remove the clustered particles
+      work.erase(std::remove_if(work.begin(), work.end(), [&](const Particle& part) { return inCone(seed, part); }),
+                work.end());
+    }
+
+    if ( useExternalSeeds ) {
+      seeds.erase(seeds.begin());
+      if (debug_) dbgCout() << "N seeds remaining : " << seeds.size() << std::endl;
+
+    }
+
+
   }
   return jets;
 }
