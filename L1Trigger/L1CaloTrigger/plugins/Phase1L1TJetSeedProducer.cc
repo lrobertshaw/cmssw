@@ -185,7 +185,6 @@ void Phase1L1TJetSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
   // sort by pt
   l1t::PFCandidateCollection sortedSeeds;
   sortSeeds( seedsVector, sortedSeeds );
-
   auto seedsVectorPtr = std::make_unique<l1t::PFCandidateCollection>(sortedSeeds);
   iEvent.put(std::move(seedsVectorPtr), outputCollectionName_ );
 
@@ -252,6 +251,12 @@ l1t::PFCandidateCollection Phase1L1TJetSeedProducer::findSeeds(float seedThresho
         pfVector.SetPhi(phiBinCentre);
         pfVector.SetEta(etaBinCentre);
         p.setP4( pfVector );
+
+        l1ct::PuppiObj puppiObj;
+        puppiObj.hwPt = l1ct::Scales::makePtFromFloat( centralPt );
+        puppiObj.hwEta = l1ct::Scales::makeGlbEta( etaBinCentre );
+        puppiObj.hwPhi = l1ct::Scales::makeGlbPhi( phiBinCentre );
+        p.setEncodedPuppi64( puppiObj.pack().to_uint64() );
 
         seeds.emplace_back(p);
       }
