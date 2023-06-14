@@ -5,5 +5,5 @@ CTL2JetSeedsFileWriter = cms.EDAnalyzer('CTL2JetSeedWriter',
   inputFilename = cms.untracked.string("CTL2JetSeedsInputFile"),
   jetSeeds = cms.untracked.InputTag("Phase1L1TJetSeedProducer9x9trimmed", "histoJetSeeds9x9trimmed", ""),
   outputFilename = cms.untracked.string("CTL2JetSeedsOutputFile"),
-  format = cms.untracked.string("EMP")
+  format = cms.untracked.string("EMPv2")
 )

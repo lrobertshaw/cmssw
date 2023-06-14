@@ -63,37 +63,37 @@ private:
 
       // CTL1->CTL2 test
       // Barrel, 6*3
-      {{"puppiCands", 0}, {49}},
-      {{"puppiCands", 1}, {50}},
-      {{"puppiCands", 2}, {51}},
-      {{"puppiCands", 3}, {52}},
-      {{"puppiCands", 4}, {53}},
-      {{"puppiCands", 5}, {54}},
-      {{"puppiCands", 6}, {60}},
-      {{"puppiCands", 7}, {61}},
-      {{"puppiCands", 8}, {62}},
-      {{"puppiCands", 9}, {63}},
-      {{"puppiCands", 10}, {64}},
-      {{"puppiCands", 11}, {65}},
-      {{"puppiCands", 12}, {66}},
-      {{"puppiCands", 13}, {67}},
-      {{"puppiCands", 14}, {68}},
-      {{"puppiCands", 15}, {69}},
-      {{"puppiCands", 16}, {70}},
-      {{"puppiCands", 17}, {71}},
+      {{"puppiCands", 0}, {36}},
+      {{"puppiCands", 1}, {37}},
+      {{"puppiCands", 2}, {38}},
+      {{"puppiCands", 3}, {39}},
+      {{"puppiCands", 4}, {40}},
+      {{"puppiCands", 5}, {41}},
+      {{"puppiCands", 6}, {42}},
+      {{"puppiCands", 7}, {43}},
+      {{"puppiCands", 8}, {44}},
+      {{"puppiCands", 9}, {45}},
+      {{"puppiCands", 10}, {46}},
+      {{"puppiCands", 11}, {47}},
+      {{"puppiCands", 12}, {48}},
+      {{"puppiCands", 13}, {49}},
+      {{"puppiCands", 14}, {50}},
+      {{"puppiCands", 15}, {51}},
+      {{"puppiCands", 16}, {52}},
+      {{"puppiCands", 17}, {53}},
 
       // Endcap with tracks, 3*2
-      {{"puppiCands", 18}, {43}},
-      {{"puppiCands", 19}, {44}},
-      {{"puppiCands", 20}, {45}},
-      {{"puppiCands", 21}, {46}},
-      {{"puppiCands", 22}, {47}},
-      {{"puppiCands", 23}, {48}},
+      {{"puppiCands", 18}, {54}},
+      {{"puppiCands", 19}, {55}},
+      {{"puppiCands", 20}, {56}},
+      {{"puppiCands", 21}, {57}},
+      {{"puppiCands", 22}, {58}},
+      {{"puppiCands", 23}, {59}},
 
       // Endcap no tracks, 3*1
-      {{"puppiCands", 24}, {40}},
-      {{"puppiCands", 25}, {41}},
-      {{"puppiCands", 26}, {42}}
+      {{"puppiCands", 24}, {60}},
+      {{"puppiCands", 25}, {61}},
+      {{"puppiCands", 26}, {62}}
 
       
       };
