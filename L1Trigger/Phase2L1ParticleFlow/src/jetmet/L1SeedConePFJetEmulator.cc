@@ -111,7 +111,6 @@ std::vector<L1SCJetEmu::Jet> L1SCJetEmu::emulateEvent(std::vector<Particle>& par
       return inCone(seed, part);
     });
     if (debug_) {
-      std::cout << useExternalSeeds << " " << seeds.size() << " " << !( !useExternalSeeds || seeds.size() == 0 ) << " " << work.empty() << " " << jets.size() << std::endl;
       dbgCout() << "Seed: " << seed.hwPt << ", " << seed.hwEta << ", " << seed.hwPhi << std::endl;
       std::cout << "N particles : " << particlesInCone.size() << std::endl;
       std::for_each(particlesInCone.begin(), particlesInCone.end(), [&](Particle& part) {

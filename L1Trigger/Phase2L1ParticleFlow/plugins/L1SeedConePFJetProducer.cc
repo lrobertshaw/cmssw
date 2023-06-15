@@ -102,6 +102,7 @@ void L1SeedConePFJetProducer::produce(edm::StreamID /*unused*/,
   }
 
   std::sort(jets.begin(), jets.end(), [](l1t::PFJet i, l1t::PFJet j) { return (i.pt() > j.pt()); });
+
   newPFJetCollection->swap(jets);
   iEvent.put(std::move(newPFJetCollection));
 }
