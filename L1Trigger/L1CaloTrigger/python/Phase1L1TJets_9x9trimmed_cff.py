@@ -20,7 +20,7 @@ l1tPhase1JetCalibrator9x9trimmedUnsorted = l1tPhase1JetCalibrator9x9trimmed.clon
 )
 
 l1tPhase1JetSumsProducer9x9trimmed = l1tPhase1JetSumsProducer.clone(
-  inputJetCollectionTag = cms.InputTag("l1tPhase1JetCalibrator9x9trimmedUnsorted", "l1tPhase1JetFromPfCandidates"),
+  inputJetCollectionTag = cms.InputTag("l1tPhase1JetCalibrator9x9trimmed", "l1tPhase1JetFromPfCandidates"),
 )
 
 l1tPhase1JetsSequence9x9trimmed = cms.Sequence(

@@ -14,7 +14,7 @@ l1tPhase1JetCalibrator9x9.inputCollectionTag = cms.InputTag("l1tPhase1JetProduce
 l1tPhase1JetCalibrator9x9.outputCollectionName = cms.string("l1tPhase1JetFromPfCandidates")
 
 l1tPhase1JetSumsProducer9x9 = l1tPhase1JetSumsProducer.clone(
-  inputJetCollectionTag = cms.InputTag("l1tPhase1JetCalibrator9x9Unsorted", "l1tPhase1JetFromPfCandidates"),
+  inputJetCollectionTag = cms.InputTag("l1tPhase1JetCalibrator9x9", "l1tPhase1JetFromPfCandidates"),
 )
 
 l1tPhase1JetCalibrator9x9Unsorted = l1tPhase1JetCalibrator9x9.clone(
