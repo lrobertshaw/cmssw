@@ -10,6 +10,11 @@ l1tSCPFL1PuppiCorrectedEmulator = l1tSeedConePFJetEmulatorProducer.clone(L1PFObj
                                                                      correctorFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root"),
                                                                      correctorDir = cms.string('L1PuppiSC4EmuJets'))
 
+from L1Trigger.L1CaloTrigger.Phase1L1TJetSeedProducer_cfi import l1tPhase1JetSeedProducer9x9trimmed
+l1tHistoSeedsSCPFL1PuppiCorrectedEmulator = l1tSCPFL1PuppiCorrectedEmulator.clone( useExternalSeeds = True,
+                                                                                  JetSeeds = ('l1tPhase1JetSeedProducer9x9trimmed', 'histoJetSeeds9x9trimmed'),
+                                                                                  nJets = 12
+                                                                                  )
 _correctedJets = cms.EDProducer("L1TCorrectedPFJetProducer", 
     jets = cms.InputTag("_tag_"),
     correctorFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root"),
@@ -50,3 +55,7 @@ L1TPFJetsEmulationTask = cms.Task(
     l1tLayer2Deregionizer, l1tSCPFL1PuppiEmulator, l1tSCPFL1PuppiCorrectedEmulator, l1tSCPFL1PuppiCorrectedEmulatorMHT
 )
 
+L1TPFHistoSeedJetsTask = cms.Task(
+    l1tPhase1JetSeedProducer9x9trimmed, l1tLayer2Deregionizer, l1tHistoSeedsSCPFL1PuppiCorrectedEmulator
+    
+)

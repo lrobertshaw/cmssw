@@ -8,7 +8,7 @@ l1tSeedConePFJetProducer = cms.EDProducer("L1SeedConePFJetProducer",
                            debug       = cms.bool(False),
                            doCorrections = cms.bool(False),
                            useExternalSeeds = cms.bool(False),
-                           JetSeeds = cms.InputTag("Phase1L1TJetSeedProducer9x9trimmed","histoJetSeeds9x9trimmed"),
+                           JetSeeds = cms.InputTag("l1tPhase1JetSeedProducer9x9trimmed","histoJetSeeds9x9trimmed"),
                            correctorFile = cms.string(""),
                            correctorDir  = cms.string("")
                          )

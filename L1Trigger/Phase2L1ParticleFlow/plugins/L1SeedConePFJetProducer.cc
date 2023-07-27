@@ -93,7 +93,6 @@ void L1SeedConePFJetProducer::produce(edm::StreamID /*unused*/,
     }
   }
 
-
   std::vector<l1t::PFJet> jets;
   if (HW) {
     jets = processEvent_HW(particles, seeds);
@@ -102,6 +101,13 @@ void L1SeedConePFJetProducer::produce(edm::StreamID /*unused*/,
   }
 
   std::sort(jets.begin(), jets.end(), [](l1t::PFJet i, l1t::PFJet j) { return (i.pt() > j.pt()); });
+
+  // Added for temp debugging
+  // if ( !useExternalSeeds ) {
+  //   jets.erase(std::remove_if(jets.begin(), jets.end(), [](const l1t::PFJet& j) {
+  //         return abs(j.eta()) > 3;
+  //     }), jets.end());
+  // }
 
   newPFJetCollection->swap(jets);
   iEvent.put(std::move(newPFJetCollection));

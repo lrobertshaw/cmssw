@@ -22,6 +22,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/L1TParticleFlow/interface/puppi.h"
+#include "DataFormats/L1TParticleFlow/interface/gt_datatypes.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/common/bitonic_hybrid_sort_ref.h"
 
 #include "TH2F.h"
@@ -179,12 +180,25 @@ void Phase1L1TJetSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
     fillCaloGrid<>(*(caloGrid_), inputsInRegions[iInputRegion], iInputRegion);
   }
 
+  // int nBinsX = caloGrid_->GetNbinsX();
+  // int nBinsY = caloGrid_->GetNbinsY();
+  // for (int iPhi = 1; iPhi <= nBinsY; iPhi++)
+  // {
+  //   std::cout << "iPhi " << iPhi - 1 << " " << caloGrid_->GetYaxis()->GetBinCenter(iPhi) << " " << l1gt::phi_t(caloGrid_->GetYaxis()->GetBinCenter(iPhi) / l1gt::Scales::ETAPHI_LSB ) << ": ";
+  //   for (int iEta = 1; iEta <= nBinsX; iEta++)
+  //   {
+  //     std::cout <<caloGrid_->GetBinContent(iEta, iPhi) << " ";
+  //   }
+  //   std::cout << std::endl;
+  // }
+
   // find the seeds
   const auto& seedsVector = findSeeds(seedPtThreshold_);  // seedPtThreshold = 5
 
   // sort by pt
   l1t::PFCandidateCollection sortedSeeds;
   sortSeeds( seedsVector, sortedSeeds );
+
   auto seedsVectorPtr = std::make_unique<l1t::PFCandidateCollection>(sortedSeeds);
   iEvent.put(std::move(seedsVectorPtr), outputCollectionName_ );
 
@@ -210,6 +224,7 @@ l1t::PFCandidateCollection Phase1L1TJetSeedProducer::findSeeds(float seedThresho
       float centralPt = caloGrid_->GetBinContent(iEta, iPhi);
       if (centralPt < seedThreshold)
         continue;
+
       bool isLocalMaximum = true;
       // Scanning through the grid centered on the seed
       for (int etaIndex = -etaHalfSize; etaIndex <= etaHalfSize; etaIndex++) {
