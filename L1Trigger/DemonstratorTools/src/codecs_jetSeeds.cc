@@ -17,48 +17,6 @@ namespace l1t::demo::codecs {
     puppiCand.hwPhi = phi;
     ap_uint<64> candWord = puppiCand.pack();
 
-
-
-    // l1gt::pt_t pt = j.pt();
-
-    // // Get eta bin number and eta region
-    // double etaFloat = j.eta();
-    // unsigned int etaRegion = 2;
-
-    // if ( etaFloat > 1.5 ) {
-    //   etaFloat -= 1.5;
-    //   etaRegion = 3;
-    // }
-    // else if ( etaFloat < 0 ) {
-    //   while (etaFloat < 0 ) {
-    //     etaFloat += 1.5;
-    //     etaRegion -= 1;
-    //   }
-    // }
-
-    // // Get eta of bin centre, convert to GT eta
-    // double etaLSB = 6. / 72;
-    // ap_uint<10> etaBin = etaFloat / etaLSB;
-    // double etaBinCentre = -3 +1.5*etaRegion+(etaBin+0.5)*(etaLSB);
-    // l1gt::eta_t gtEta = etaBinCentre / l1gt::Scales::ETAPHI_LSB;
-    // // std::cout << "Jet : " << j.pt() << " " << j.eta() << " " << etaBin << " " << etaRegion << " " << etaBinCentre << " " << gtEta << " " << gtEta.to_string() << std::endl;
-
-    // double phiLSB = 2 * M_PI / 72;
-    // ap_uint<10> phiBin = (j.phi() + 3.14) / phiLSB;
-    // double phiBinCentre = -3.14 + ( phiBin+0.5 ) * phiLSB;
-    // l1gt::phi_t gtPhi = phiBinCentre / l1gt::Scales::ETAPHI_LSB;
-    // // std::cout << "Phi : " << j.phi() << " " << phiBin << " " << phiBinCentre << " " << gtPhi << " " << gtPhi.to_string() << std::endl;
-
-    std::cout << "Jet seed, float : " << j.pt() << " " << j.eta() << " " << j.phi() << std::endl;
-    std::cout << "Jet seed : " << pt << " " << eta << " " << phi << std::endl;
-    // l1gt::Jet jet;
-    // jet.valid = 1;
-    // jet.v3.pt = pt;
-    // jet.v3.eta = gtEta;
-    // jet.v3.phi = gtPhi;
-    // jet.z0 = 0;
-    // ap_uint<64> candWord = jet.pack()[0];
-
     return candWord;
   }
 
@@ -77,4 +35,13 @@ namespace l1t::demo::codecs {
     return linkData;
   }
 
+std::array<std::vector<ap_uint<64>>, 12> encodeJets(const edm::View<l1t::PFJet>& jets) {
+    std::array<std::vector<ap_uint<64>>, 12> linkData;
+
+    for ( const auto& jet : jets ) {
+      const auto gtJet = jet.getHWJetGT();
+    }
+
+    return linkData;
+  }
 }  // namespace l1t::demo::codecs

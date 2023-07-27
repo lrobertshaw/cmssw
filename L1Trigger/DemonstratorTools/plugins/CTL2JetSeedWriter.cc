@@ -33,6 +33,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
+#include "DataFormats/L1TParticleFlow/interface/PFJet.h"
 #include "DataFormats/Common/interface/View.h"
 
 #include "L1Trigger/DemonstratorTools/interface/BoardDataWriter.h"
@@ -63,37 +64,37 @@ private:
 
       // CTL1->CTL2 test
       // Barrel, 6*3
-      {{"puppiCands", 0}, {36}},
-      {{"puppiCands", 1}, {37}},
-      {{"puppiCands", 2}, {38}},
-      {{"puppiCands", 3}, {39}},
-      {{"puppiCands", 4}, {40}},
-      {{"puppiCands", 5}, {41}},
-      {{"puppiCands", 6}, {42}},
-      {{"puppiCands", 7}, {43}},
-      {{"puppiCands", 8}, {44}},
-      {{"puppiCands", 9}, {45}},
-      {{"puppiCands", 10}, {46}},
-      {{"puppiCands", 11}, {47}},
-      {{"puppiCands", 12}, {48}},
-      {{"puppiCands", 13}, {49}},
-      {{"puppiCands", 14}, {50}},
-      {{"puppiCands", 15}, {51}},
-      {{"puppiCands", 16}, {52}},
-      {{"puppiCands", 17}, {53}},
+      {{"puppiCands", 0}, {40}},
+      {{"puppiCands", 1}, {41}},
+      {{"puppiCands", 2}, {42}},
+      {{"puppiCands", 3}, {43}},
+      {{"puppiCands", 4}, {44}},
+      {{"puppiCands", 5}, {45}},
+      {{"puppiCands", 6}, {46}},
+      {{"puppiCands", 7}, {47}},
+      {{"puppiCands", 8}, {48}},
+      {{"puppiCands", 9}, {49}},
+      {{"puppiCands", 10}, {50}},
+      {{"puppiCands", 11}, {51}},
+      {{"puppiCands", 12}, {52}},
+      {{"puppiCands", 13}, {53}},
+      {{"puppiCands", 14}, {54}},
+      {{"puppiCands", 15}, {55}},
+      {{"puppiCands", 16}, {56}},
+      {{"puppiCands", 17}, {57}},
 
       // Endcap with tracks, 3*2
-      {{"puppiCands", 18}, {54}},
-      {{"puppiCands", 19}, {55}},
-      {{"puppiCands", 20}, {56}},
-      {{"puppiCands", 21}, {57}},
-      {{"puppiCands", 22}, {58}},
-      {{"puppiCands", 23}, {59}},
+      {{"puppiCands", 18}, {60}},
+      {{"puppiCands", 19}, {61}},
+      {{"puppiCands", 20}, {62}},
+      {{"puppiCands", 21}, {63}},
+      {{"puppiCands", 22}, {64}},
+      {{"puppiCands", 23}, {65}},
 
       // Endcap no tracks, 3*1
-      {{"puppiCands", 24}, {60}},
-      {{"puppiCands", 25}, {61}},
-      {{"puppiCands", 26}, {62}}
+      {{"puppiCands", 24}, {66}},
+      {{"puppiCands", 25}, {67}},
+      {{"puppiCands", 26}, {68}}
 
       
       };
@@ -126,10 +127,12 @@ private:
   // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<reco::Candidate>> puppiToken_;
   edm::EDGetTokenT<edm::View<reco::Candidate>> jetSeedsToken_;
+  edm::EDGetTokenT<edm::View<l1t::PFJet>> jetsToken_;
 
   l1t::demo::BoardDataWriter fileWriterInputPuppiCands_;
 
   l1t::demo::BoardDataWriter fileWriterOutputJetSeeds_;
+  // l1t::demo::BoardDataWriter fileWriterOutputJets_;
 
 };
 
@@ -140,6 +143,7 @@ private:
 CTL2JetSeedWriter::CTL2JetSeedWriter(const edm::ParameterSet& iConfig)
     : puppiToken_(consumes<edm::View<reco::Candidate>>(iConfig.getUntrackedParameter<edm::InputTag>("puppiCands"))),
       jetSeedsToken_(consumes<edm::View<reco::Candidate>>(iConfig.getUntrackedParameter<edm::InputTag>("jetSeeds"))),
+      jetsToken_(consumes<edm::View<l1t::PFJet>>(iConfig.getUntrackedParameter<edm::InputTag>("seededConeJets"))),
       fileWriterInputPuppiCands_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                              iConfig.getUntrackedParameter<std::string>("inputFilename"),
                              kFramesPerTMUXPeriod,
@@ -147,12 +151,12 @@ CTL2JetSeedWriter::CTL2JetSeedWriter(const edm::ParameterSet& iConfig)
                              kMaxLinesPerFile,
                              kChannelIdsInput,
                              kChannelSpecsInput),
-        fileWriterOutputJetSeeds_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
-                             iConfig.getUntrackedParameter<std::string>("outputFilename"),
-                             kFramesPerTMUXPeriod,
-                             kCTL2TMUX,
-                             kMaxLinesPerFile,
-                             kChannelSpecsJetSeedsOutput ) {}
+      fileWriterOutputJetSeeds_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
+                            iConfig.getUntrackedParameter<std::string>("outputFilename"),
+                            kFramesPerTMUXPeriod,
+                            kCTL2TMUX,
+                            kMaxLinesPerFile,
+                            kChannelSpecsJetSeedsOutput ) {}
 
 void CTL2JetSeedWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
@@ -161,6 +165,7 @@ void CTL2JetSeedWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
   // // 1) Encode track information onto vectors containing link data
   const auto puppiData(encodePuppiCands(iEvent.get(puppiToken_)));
   const auto jetSeedsData(encodeJetSeeds(iEvent.get(jetSeedsToken_)));
+  const auto jetsData(encodeJets(iEvent.get(jetsToken_)));
 
   // // 2) Pack track information into 'event data' object, and pass that to file writer
   l1t::demo::EventData eventDataPuppiCands;

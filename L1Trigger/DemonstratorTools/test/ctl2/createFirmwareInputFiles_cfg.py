@@ -7,7 +7,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 
 options = VarParsing.VarParsing ('analysis')
 options.register ('format',
-                  'EMP', # default value
+                  'EMPv2', # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "File format (APx, EMP or X20)")
