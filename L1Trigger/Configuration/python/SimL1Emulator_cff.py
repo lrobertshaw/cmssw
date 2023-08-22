@@ -215,6 +215,7 @@ _phase2_siml1emulator.add(l1tHPSPFTauProducerPuppi)
 # ########################################################################
 from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
 _phase2_siml1emulator.add(L1TPFJetsEmulationTask)
+from L1Trigger.Phase2L1ParticleFlow.l1tHistoSeededConeJets_cff import *
 _phase2_siml1emulator.add(L1TPFHistoSeedJetsTask)
 
 from L1Trigger.Phase2L1ParticleFlow.l1tMETPFProducer_cfi import *
