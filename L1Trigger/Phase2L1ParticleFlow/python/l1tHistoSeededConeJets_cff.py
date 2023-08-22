@@ -16,3 +16,16 @@ l1tHistoSeedsSCPFL1PuppiCorrectedEmulator = l1tSeedConePFJetEmulatorProducer.clo
 L1TPFHistoSeedJetsTask = cms.Task(
     l1tPhase1JetSeedProducer9x9trimmed, l1tLayer2Deregionizer, l1tHistoSeedsSCPFL1PuppiCorrectedEmulator
 )
+
+
+l1tPhase1JetSeedProducer7x7 = l1tPhase1JetSeedProducer9x9trimmed.clone( jetIEtaSize = 7,
+                                                                        jetIPhiSize = 7,
+                                                                        trimmedGrid = False,
+                                                                        outputCollectionName = "histoJetSeeds7x7"
+                                                                        )
+
+l1t7x7HistoSeedsSCPFL1PuppiCorrectedEmulator = l1tHistoSeedsSCPFL1PuppiCorrectedEmulator.clone( JetSeeds = ('l1tPhase1JetSeedProducer7x7', 'histoJetSeeds7x7') )
+
+L1TPF7x7HistoSeedJetsTask = cms.Task(
+    l1tPhase1JetSeedProducer7x7, l1tLayer2Deregionizer, l1t7x7HistoSeedsSCPFL1PuppiCorrectedEmulator
+)
