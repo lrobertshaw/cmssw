@@ -138,7 +138,7 @@ process.Phase1L1TJetSumsProducer = cms.EDProducer('Phase1L1TJetSumsProducer',
 
 
 # process.SaveSums = cms.EDAnalyzer("SaveGenSumsAndL1Sums",
-#   genMETCollectionTag = cms.InputTag("genMetTrue"), # taking pre-existing MET collection
+#   genMETCollectionTag = cnBinsPhims.InputTag("genMetTrue"), # taking pre-existing MET collection
 #   l1tMETCollectionTag = cms.InputTag("Phase1L1TJetProducer", "UncalibratedPhase1L1TJetFromPfCandidatesMET"), # taking L1T MET produced by jet trigger
 #   genJetCollectionTag = cms.InputTag("ak4GenJetsNoNu"), # taking pre-existing gen jet collection
 #   l1tHTCollectionTag = cms.InputTag("Phase1L1TSumsProducer", "Sums"), # taking L1T HT produced by jet trigger

@@ -53,8 +53,8 @@ private:
       std::unordered_map<const l1t::PFCandidate*, edm::Ptr<l1t::PFCandidate>> constituentMap) const;
 };
 
-L1SeedConePFJetProducer::L1SeedConePFJetProducer(const edm::ParameterSet& cfg)
-    : coneSize(cfg.getParameter<double>("coneSize")),
+L1SeedConePFJetProducer::L1SeedConePFJetProducer(const edm::ParameterSet& cfg):
+      coneSize(cfg.getParameter<double>("coneSize")),
       nJets(cfg.getParameter<unsigned>("nJets")),
       HW(cfg.getParameter<bool>("HW")),
       debug(cfg.getParameter<bool>("debug")),

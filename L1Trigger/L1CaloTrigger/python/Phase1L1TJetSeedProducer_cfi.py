@@ -16,7 +16,12 @@ caloEtaSegmentation = cms.vdouble(
 2.5 , 2.58508480045 , 2.66798793935 , 2.75089107825 , 2.83379421715 , 2.91669735605 , 3
 )
 
-l1tPhase1JetSeedProducer9x9trimmed = cms.EDProducer('Phase1L1TJetSeedProducer',
+
+"""
+Default EDProducer call with default params. Notable params are the 9x9 jet size and 1x1 seed size.
+These can be changed using the clone method in the cff file.
+"""
+l1tPhase1JetSeedProducer = cms.EDProducer('Phase1L1TJetSeedProducer',
   inputCollectionTag = cms.InputTag("l1tLayer1", "Puppi"),
   etaBinning = caloEtaSegmentation,
   nBinsPhi = cms.uint32(72),
@@ -24,12 +29,13 @@ l1tPhase1JetSeedProducer9x9trimmed = cms.EDProducer('Phase1L1TJetSeedProducer',
   phiUp = cms.double(3.15),
   jetIEtaSize = cms.uint32(9),
   jetIPhiSize = cms.uint32(9),
-  trimmedGrid = cms.bool(True),
+  trimmedGrid = cms.bool(False),
   seedPtThreshold = cms.double(1), # GeV
   ptlsb = cms.double(0.25),
   philsb = cms.double(0.0043633231),
   etalsb = cms.double(0.0043633231),
-  outputCollectionName = cms.string("histoJetSeeds9x9trimmed"),
+  outputCollectionName = cms.string("histoJetSeeds"),
+  seedSize = cms.double(3),
   etaRegions = cms.vdouble( -3, -2.5, -1.5, -1.0, -0.5, 0, 0.5, 1, 1.5, 2.5, 3 ),
   phiRegions = cms.vdouble( -3.15, -2.45, -1.75, -1.05, -0.35, 0.35, 1.05, 1.75, 2.45, 3.15 ),#, 4.2, 4.9, 5.6, 6.3 ),
   maxInputsPerRegion = cms.uint32( 18 )
