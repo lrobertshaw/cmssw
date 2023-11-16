@@ -144,6 +144,12 @@ _phase2_siml1emulator.add( l1tTkStubsGmt )
 _phase2_siml1emulator.add( l1tTkMuonsGmt )
 _phase2_siml1emulator.add( l1tSAMuonsGmt )
 
+## fix for low-pt muons, this collection is a copy of the l1tTkMuonsGmt collection 
+## in which we only keep those low pt muons with an SA muon associated to it. Threshold 
+## for this cutoff is configurable. 
+l1tTkMuonsGmtLowPtFix = l1tGMTFilteredMuons.clone()
+_phase2_siml1emulator.add( l1tTkMuonsGmtLowPtFix )
+
 # Tracker Objects
 # ########################################################################
 from L1Trigger.L1TTrackMatch.l1tTrackJets_cfi import *
@@ -151,9 +157,9 @@ from L1Trigger.L1TTrackMatch.l1tTrackFastJets_cfi import *
 from L1Trigger.L1TTrackMatch.l1tTrackerEtMiss_cfi import *
 from L1Trigger.L1TTrackMatch.l1tTrackerHTMiss_cfi import *
 # make the input tags consistent with the choice L1VertexFinder above
-l1tTrackJets.L1PVertexCollection  = ("l1tVertexFinder", "l1vertices")
+l1tTrackJets.L1PVertexInputTag  = ("l1tVertexFinderEmulator","l1verticesEmulation")
 l1tTrackFastJets.L1PrimaryVertexTag  = ("l1tVertexFinder", "l1vertices")
-l1tTrackJetsExtended.L1PVertexCollection  = ("l1tVertexFinder", "l1vertices")
+l1tTrackJetsExtended.L1PVertexInputTag  = ("l1tVertexFinderEmulator","l1verticesEmulation")
 #l1tTrackerEtMiss.L1VertexInputTag = ("l1tVertexFinder", "l1vertices")
 #l1tTrackerEtMissExtended.L1VertexInputTag = ("l1tVertexFinder", "l1vertices")
 
@@ -188,11 +194,16 @@ _phase2_siml1emulator.add(L1TLayer1TaskInputsTask, L1TLayer1Task, L1TLayer2EGTas
 
 # PF Jet
 # ########################################################################
-from L1Trigger.L1CaloTrigger.Phase1L1TJets_cff import *
 # Describe here l1PFJets_a_la_Phase1 Task
 # ###############################
-L1TPFJetsPhase1Task = cms.Task(l1tPhase1JetProducer , l1tPhase1JetCalibrator, l1tPhase1JetSumsProducer)
-_phase2_siml1emulator.add(L1TPFJetsPhase1Task)
+from L1Trigger.L1CaloTrigger.Phase1L1TJets_9x9_cff import *
+# L1TPFJetsPhase1Task_9x9 = cms.Task( l1tPhase1JetProducer9x9, l1tPhase1JetCalibrator9x9, l1tPhase1JetSumsProducer9x9)
+_phase2_siml1emulator.add(L1TPFJetsPhase1Task_9x9)
+
+
+from L1Trigger.L1CaloTrigger.Phase1L1TJets_9x9trimmed_cff import *
+# L1TPFJetsPhase1Task_9x9trimmed = cms.Task(  l1tPhase1JetProducer9x9trimmed, l1tPhase1JetCalibrator9x9trimmed, l1tPhase1JetSumsProducer9x9trimmed)
+_phase2_siml1emulator.add(L1TPFJetsPhase1Task_9x9trimmed)
 
 from L1Trigger.Phase2L1Taus.HPSPFTauProducerPF_cfi import *
 _phase2_siml1emulator.add(l1tHPSPFTauProducerPF)
@@ -200,15 +211,12 @@ _phase2_siml1emulator.add(l1tHPSPFTauProducerPF)
 from L1Trigger.Phase2L1Taus.HPSPFTauProducerPuppi_cfi import *
 _phase2_siml1emulator.add(l1tHPSPFTauProducerPuppi)
 
-from L1Trigger.L1CaloTrigger.Phase1L1TJets_9x9_cff import *
-L1TPFJetsPhase1Task_9x9 = cms.Task(  l1tPhase1JetProducer9x9, l1tPhase1JetCalibrator9x9, l1tPhase1JetSumsProducer9x9)
-_phase2_siml1emulator.add(L1TPFJetsPhase1Task_9x9)
-
-
 # PF MET
 # ########################################################################
 from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
-_phase2_siml1emulator.add(L1TPFJetsTask)
+_phase2_siml1emulator.add(L1TPFJetsEmulationTask)
+from L1Trigger.Phase2L1ParticleFlow.l1tHistoSeededConeJets_cff import *
+_phase2_siml1emulator.add(L1TPFHistoSeedJetsTask)
 
 from L1Trigger.Phase2L1ParticleFlow.l1tMETPFProducer_cfi import *
 _phase2_siml1emulator.add(l1tMETPFProducer)
@@ -218,6 +226,13 @@ _phase2_siml1emulator.add(l1tMETPFProducer)
 # ########################################################################
 from L1Trigger.Phase2L1ParticleFlow.L1NNTauProducer_cff import *
 _phase2_siml1emulator.add(l1tNNTauProducerPuppi)
+
+
+# BJets
+# ########################################################################
+from L1Trigger.Phase2L1ParticleFlow.L1BJetProducer_cff import *
+_phase2_siml1emulator.add(L1TBJetsTask)
+
 
 # --> add modules
 from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
