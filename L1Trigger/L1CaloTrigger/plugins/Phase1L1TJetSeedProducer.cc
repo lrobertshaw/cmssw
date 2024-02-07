@@ -46,6 +46,7 @@ private:
 
   /// Get the energy of a certain tower while correctly handling phi periodicity in case of overflow
   float getTowerEnergy(int iEta, int iPhi) const;
+  float getSeedEnergy(int iEta, int iPhi) const;
 
   // Sort the seeds as in firmware
   void sortSeeds(const l1t::PFCandidateCollection unsortedJets, l1t::PFCandidateCollection& sortedJets );
@@ -103,8 +104,8 @@ private:
   unsigned int jetIEtaSize_;
   unsigned int jetIPhiSize_;
   bool trimmedGrid_;
+  unsigned int seedSize_;
   double seedPtThreshold_;
-  double seedSize_;
   double ptlsb_;
   double philsb_;
   double etalsb_;
@@ -128,7 +129,7 @@ Phase1L1TJetSeedProducer::Phase1L1TJetSeedProducer(const edm::ParameterSet& iCon
       jetIEtaSize_(iConfig.getParameter<unsigned int>("jetIEtaSize")),
       jetIPhiSize_(iConfig.getParameter<unsigned int>("jetIPhiSize")),
       trimmedGrid_(iConfig.getParameter<bool>("trimmedGrid")),
-      seedSize_(iConfig.getParameter<double>("seedSize")),
+      seedSize_(iConfig.getParameter<unsigned int>("seedSize")),
       seedPtThreshold_(iConfig.getParameter<double>("seedPtThreshold")),
       ptlsb_(iConfig.getParameter<double>("ptlsb")),
       philsb_(iConfig.getParameter<double>("philsb")),
@@ -555,7 +556,7 @@ void Phase1L1TJetSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<unsigned int>("jetIEtaSize", 7);
   desc.add<unsigned int>("jetIPhiSize", 7);
   desc.add<bool>("trimmedGrid", false);
-  desc.add<double>("seedSize", 1);
+  desc.add<unsigned int>("seedSize", 1);
   desc.add<double>("seedPtThreshold", 5);
   desc.add<double>("ptlsb", 0.25), desc.add<double>("philsb", 0.0043633231), desc.add<double>("etalsb", 0.0043633231),
   desc.add<string>("outputCollectionName", "UncalibratedPhase1L1TJetFromPfCandidates");
