@@ -1,0 +1,17 @@
+<flags CXXFLAGS="-ggdb"/>
+<use name="root"/>
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/JetReco"/>
+<use name="DataFormats/METReco"/>
+<use name="RecoMET/METAlgorithms"/>
+<use name="CommonTools/BaseParticlePropagator"/>
+<use name="DataFormats/ParticleFlowReco"/>
+<use name="SimDataFormats/CaloAnalysis"/>
+<use name="DataFormats/L1THGCal"/>
+<use name="CommonTools/Utils"/>
+<use name="Geometry/Records"/>
+<use name="L1Trigger/L1THGCal"/>
+<use name="fastjet"/>
+<export>
+  <lib name="1"/>
+</export>
