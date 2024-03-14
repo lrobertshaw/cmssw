@@ -275,7 +275,7 @@ l1t::PFCandidateCollection Phase1L1TJetSeedProducer::findSeeds(float seedThresho
       for (int etaIndex = -etaHalfSize; etaIndex <= etaHalfSize; etaIndex++) {
         for (int phiIndex = -phiHalfSize; phiIndex <= phiHalfSize; phiIndex++) {
           // This nested for loop scans over the grid around the current cell
-          // if (trimmedGrid_) {
+          // if (trimmedGrid_) {l
           //   if (trimTower(etaIndex, phiIndex))
           //     continue;
           // }
