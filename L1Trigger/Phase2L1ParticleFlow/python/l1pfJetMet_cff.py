@@ -5,7 +5,8 @@ from L1Trigger.Phase2L1ParticleFlow.l1tDeregionizerProducer_cfi import l1tDeregi
 
 l1tSCPFL1PF            = l1tSeedConePFJetProducer.clone(L1PFObjects = 'l1tLayer1:PF')
 l1tSCPFL1Puppi         = l1tSeedConePFJetProducer.clone()
-l1tSCPFL1PuppiEmulator = l1tSeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi')
+l1tSCPFL1PuppiEmulator = l1tSeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi',
+                                                                coneSize = cms.double(0.8))    # default is dont use external seeds and dont do corrections
 l1tSCPFL1PuppiCorrectedEmulator = l1tSeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi',
                                                                      doCorrections = cms.bool(True),
                                                                      correctorFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root"),
