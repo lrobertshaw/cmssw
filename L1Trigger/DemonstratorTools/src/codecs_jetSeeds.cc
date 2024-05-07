@@ -38,9 +38,9 @@ namespace l1t::demo::codecs {
 std::array<std::vector<ap_uint<64>>, 12> encodeJets(const edm::View<l1t::PFJet>& jets) {
     std::array<std::vector<ap_uint<64>>, 12> linkData;
 
-    for ( const auto& jet : jets ) {
-      const auto gtJet = jet.getHWJetGT();
-    }
+    // for ( const auto& jet : jets ) {
+    //   const auto gtJet = jet.getHWJetGT();
+    // }
 
     return linkData;
   }

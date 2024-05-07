@@ -255,7 +255,7 @@ void L1SeedConePFJetProducer::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<std::string>("correctorDir", "");
   desc.add<bool>("useExternalSeeds", false );
   desc.add<bool>("allowDoubleCounting", false );
-  desc.add<edm::InputTag>("JetSeeds",  = edm::InputTag("l1tPhase1JetSeedProducer9x9trimmed","histoJetSeeds9x9trimmed"));
+  desc.add<edm::InputTag>("JetSeeds", edm::InputTag("l1tPhase1JetSeedProducer9x9trimmed","histoJetSeeds9x9trimmed"));
   descriptions.addWithDefaultLabel(desc);
 }
 

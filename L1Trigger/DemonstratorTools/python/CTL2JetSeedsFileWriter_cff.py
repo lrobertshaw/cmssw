@@ -6,5 +6,6 @@ CTL2JetSeedsFileWriter = cms.EDAnalyzer('CTL2JetSeedWriter',
   jetSeeds = cms.untracked.InputTag("seeds9x9Trimmed", "histoJetSeeds9x9trimmed", ""),
   seededConeJets = cms.untracked.InputTag("seededcone", "", ""),
   outputFilename = cms.untracked.string("CTL2JetSeedsOutputFile"),
+  fileExtension = cms.untracked.string("txt"),
   format = cms.untracked.string("EMPv2")
 )
