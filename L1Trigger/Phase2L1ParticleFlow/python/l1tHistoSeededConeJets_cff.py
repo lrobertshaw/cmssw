@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.Phase2L1ParticleFlow.l1tSeedConePFJetProducer_cfi import l1tSeedConePFJetEmulatorProducer
+from L1Trigger.Phase2L1ParticleFlow.l1SeedConePFJetEmulatorProducer_cfi import l1SeedConePFJetEmulatorProducer
 from L1Trigger.Phase2L1ParticleFlow.l1tDeregionizerProducer_cfi import l1tDeregionizerProducer as l1tLayer2Deregionizer
 
 from L1Trigger.L1CaloTrigger.Phase1L1TJetSeedProducer_cfi import l1tPhase1JetSeedProducer9x9trimmed
 #9x9 sample with 1x1 seed size
-l1tHistoSeedsSCPFL1PuppiCorrectedEmulator = l1tSeedConePFJetEmulatorProducer.clone( useExternalSeeds = True,
+l1tHistoSeedsSCPFL1PuppiCorrectedEmulator = l1SeedConePFJetEmulatorProducer.clone( useExternalSeeds = True,
                                                                                    allowDoubleCounting = False,
                                                                                   JetSeeds = ('l1tPhase1JetSeedProducer9x9trimmed', 'histoJetSeeds9x9trimmed'),
                                                                                   nJets = 12,
@@ -19,7 +19,7 @@ L1TPFHistoSeedJetsTask = cms.Task(
     l1tPhase1JetSeedProducer9x9trimmed, l1tLayer2Deregionizer, l1tHistoSeedsSCPFL1PuppiCorrectedEmulator
 )
 #Double counting allowed
-l1tHistoSeedsSCPFL1PuppiCorrectedEmulatorDC = l1tSeedConePFJetEmulatorProducer.clone( useExternalSeeds = True,
+l1tHistoSeedsSCPFL1PuppiCorrectedEmulatorDC = l1SeedConePFJetEmulatorProducer.clone( useExternalSeeds = True,
                                                                                    allowDoubleCounting = True,
                                                                                   JetSeeds = ('l1tPhase1JetSeedProducer9x9trimmed', 'histoJetSeeds9x9trimmed'),
                                                                                   nJets = 12,
