@@ -7,6 +7,8 @@ CTL2FileWriter = cms.EDAnalyzer('CTL2FileWriter',
   met = cms.untracked.InputTag("l1tPhase1JetProducer9x9trimmed", "Uncalibratedl1tPhase1JetFromPfCandidatesMET"),
   ht = cms.untracked.InputTag("l1tPhase1JetSumsProducer9x9trimmed", "Sums"),
   outputFilename = cms.untracked.string("CTL2OutputFile"),
-  fileExtension = cms.untracked.string("txt"),
-  format = cms.untracked.string("EMPv2")
+  fileExtension = cms.untracked.string("txt.gz"),
+  format = cms.untracked.string("EMPv2"),
+  writeInput= cms.untracked.bool(True),
+  writeOutput=cms.untracked.bool(False)
 )

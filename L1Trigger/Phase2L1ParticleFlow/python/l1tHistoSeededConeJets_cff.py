@@ -61,6 +61,16 @@ L1TPF9x9HistoSeedJetsTaskDC = cms.Task(
     l1tPhase1JetSeedProducer9x9DC, l1tLayer2Deregionizer, l1t9x9HistoSeedsSCPFL1PuppiCorrectedEmulatorDC
 )
 
+#for 9x9 with double counting (trimmed), SC8 jets
+l1t9x9HistoSeedsSC8PFL1PuppiCorrectedEmulatorDC = l1tHistoSeedsSCPFL1PuppiCorrectedEmulatorDC.clone( JetSeeds = ('l1tPhase1JetSeedProducer9x9DC', 'histoJetSeeds9x9DC'),
+                                                                                                     coneSize = cms.double(0.8)
+                                                                                                     )
+
+#Task for 9x9 with double counting (trimmed), SC8 jets
+L1TPF9x9HistoSeed8JetsTaskDC = cms.Task(
+    l1tPhase1JetSeedProducer9x9DC, l1tLayer2Deregionizer, l1t9x9HistoSeedsSC8PFL1PuppiCorrectedEmulatorDC
+)
+
 #----------------------------------------------------------------------------------------------
 #for 7x7(trimmed)
 l1tPhase1JetSeedProducer7x7T = l1tPhase1JetSeedProducer9x9trimmed.clone( jetIEtaSize = 7,

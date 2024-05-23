@@ -99,38 +99,68 @@ private:
 
       // CTL1->CTL2 test
       // Barrel, 6*3
-      {{"puppiCands", 0}, {62}},
-      {{"puppiCands", 1}, {63}},
-      {{"puppiCands", 2}, {64}},
-      {{"puppiCands", 3}, {65}},
-      {{"puppiCands", 4}, {66}},
-      {{"puppiCands", 5}, {67}},
-      {{"puppiCands", 6}, {68}},
-      {{"puppiCands", 7}, {69}},
-      {{"puppiCands", 8}, {70}},
-      {{"puppiCands", 9}, {71}},
-      {{"puppiCands", 10}, {72}},
-      {{"puppiCands", 11}, {73}},
-      {{"puppiCands", 12}, {74}},
-      {{"puppiCands", 13}, {75}},
-      {{"puppiCands", 14}, {76}},
-      {{"puppiCands", 15}, {77}},
-      {{"puppiCands", 16}, {78}},
-      {{"puppiCands", 17}, {79}},
+      // {{"puppiCands", 0}, {62}},
+      // {{"puppiCands", 1}, {63}},
+      // {{"puppiCands", 2}, {64}},
+      // {{"puppiCands", 3}, {65}},
+      // {{"puppiCands", 4}, {66}},
+      // {{"puppiCands", 5}, {67}},
+      // {{"puppiCands", 6}, {68}},
+      // {{"puppiCands", 7}, {69}},
+      // {{"puppiCands", 8}, {70}},
+      // {{"puppiCands", 9}, {71}},
+      // {{"puppiCands", 10}, {72}},
+      // {{"puppiCands", 11}, {73}},
+      // {{"puppiCands", 12}, {74}},
+      // {{"puppiCands", 13}, {75}},
+      // {{"puppiCands", 14}, {76}},
+      // {{"puppiCands", 15}, {77}},
+      // {{"puppiCands", 16}, {78}},
+      // {{"puppiCands", 17}, {79}},
+
+      // // Endcap with tracks, 3*2
+      // {{"puppiCands", 18}, {43}},
+      // {{"puppiCands", 19}, {44}},
+      // {{"puppiCands", 20}, {45}},
+      // {{"puppiCands", 21}, {56}},
+      // {{"puppiCands", 22}, {57}},
+      // {{"puppiCands", 23}, {58}},
+
+      // // Endcap no tracks, 3*1
+      // {{"puppiCands", 24}, {40}},
+      // {{"puppiCands", 25}, {41}},
+      // {{"puppiCands", 26}, {42}}
+      {{"puppiCands", 0}, {40}},
+      {{"puppiCands", 1}, {41}},
+      {{"puppiCands", 2}, {42}},
+      {{"puppiCands", 3}, {43}},
+      {{"puppiCands", 4}, {44}},
+      {{"puppiCands", 5}, {45}},
+      {{"puppiCands", 6}, {46}},
+      {{"puppiCands", 7}, {47}},
+      {{"puppiCands", 8}, {48}},
+      {{"puppiCands", 9}, {49}},
+      {{"puppiCands", 10}, {50}},
+      {{"puppiCands", 11}, {51}},
+      {{"puppiCands", 12}, {52}},
+      {{"puppiCands", 13}, {53}},
+      {{"puppiCands", 14}, {54}},
+      {{"puppiCands", 15}, {55}},
+      {{"puppiCands", 16}, {56}},
+      {{"puppiCands", 17}, {57}},
 
       // Endcap with tracks, 3*2
-      {{"puppiCands", 18}, {43}},
-      {{"puppiCands", 19}, {44}},
-      {{"puppiCands", 20}, {45}},
-      {{"puppiCands", 21}, {56}},
-      {{"puppiCands", 22}, {57}},
-      {{"puppiCands", 23}, {58}},
+      {{"puppiCands", 18}, {60}},
+      {{"puppiCands", 19}, {61}},
+      {{"puppiCands", 20}, {62}},
+      {{"puppiCands", 21}, {63}},
+      {{"puppiCands", 22}, {64}},
+      {{"puppiCands", 23}, {65}},
 
       // Endcap no tracks, 3*1
-      {{"puppiCands", 24}, {40}},
-      {{"puppiCands", 25}, {41}},
-      {{"puppiCands", 26}, {42}}
-
+      {{"puppiCands", 24}, {66}},
+      {{"puppiCands", 25}, {67}},
+      {{"puppiCands", 26}, {68}}
       
       };
 
@@ -154,7 +184,8 @@ private:
   edm::EDGetTokenT<edm::View<l1t::EtSum>> htToken_;
 
   l1t::demo::BoardDataWriter fileWriterInputPuppiCands_;
-
+  bool writeInput_;
+  bool writeOutput_;
   l1t::demo::BoardDataWriter fileWriterOutputJetsAndSums_;
 
 };
@@ -176,6 +207,8 @@ CTL2FileWriter::CTL2FileWriter(const edm::ParameterSet& iConfig)
                              kMaxLinesPerFile,
                              kChannelIdsInput,
                              kChannelSpecsInput),
+      writeInput_(iConfig.getUntrackedParameter<bool>("writeInput")),
+      writeOutput_(iConfig.getUntrackedParameter<bool>("writeOutput")),                  
         fileWriterOutputJetsAndSums_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                              iConfig.getUntrackedParameter<std::string>("outputFilename"),
                              iConfig.getUntrackedParameter<std::string>("fileExtension"),
@@ -188,30 +221,39 @@ void CTL2FileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   using namespace edm;
   using namespace l1t::demo::codecs;
 
-  // // 1) Encode track information onto vectors containing link data
-  const auto puppiData(encodePuppiCands(iEvent.get(puppiToken_)));
-  const auto jetMetData(encodeJetMet(iEvent.get(jetsToken_),iEvent.get(metToken_),iEvent.get(htToken_)));
-
-  // // 2) Pack track information into 'event data' object, and pass that to file writer
+  
   l1t::demo::EventData eventDataPuppiCands;
-  for (size_t i = 0; i < 27; i++) {
-    eventDataPuppiCands.add({"puppiCands", i}, puppiData.at(i));
+  if(writeInput_){
+    // 1) Encode puppi candidate information onto vectors containing link data
+    const auto puppiData(encodePuppiCands(iEvent.get(puppiToken_)));
+
+    // 2) Pack puppi candidate information into 'event data' object, and pass that to file writer
+    for (size_t i = 0; i < 27; i++) {
+      eventDataPuppiCands.add({"puppiCands", i}, puppiData.at(i));
+    }
+    fileWriterInputPuppiCands_.addEvent(eventDataPuppiCands);
   }
 
+  // Same for jets
   l1t::demo::EventData eventDataJetMet;
-  eventDataJetMet.add({"jetMet", 0}, jetMetData.at(0));
-
-
-  fileWriterInputPuppiCands_.addEvent(eventDataPuppiCands);
-  fileWriterOutputJetsAndSums_.addEvent(eventDataJetMet);
-
+  if(writeOutput_){
+    const auto jetMetData(encodeJetMet(iEvent.get(jetsToken_),iEvent.get(metToken_),iEvent.get(htToken_)));
+    eventDataJetMet.add({"jetMet", 0}, jetMetData.at(0));
+    fileWriterOutputJetsAndSums_.addEvent(eventDataJetMet);
+  }
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void CTL2FileWriter::endJob() {
   // Writing pending events to file before exiting
-  fileWriterInputPuppiCands_.flush();
-  fileWriterOutputJetsAndSums_.flush();
+  if(writeInput_){
+    fileWriterInputPuppiCands_.flush();
+  }
+  if(writeOutput_){
+    fileWriterOutputJetsAndSums_.flush();
+  }
+  // fileWriterInputPuppiCands_.flush();
+  // fileWriterOutputJetsAndSums_.flush();
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
