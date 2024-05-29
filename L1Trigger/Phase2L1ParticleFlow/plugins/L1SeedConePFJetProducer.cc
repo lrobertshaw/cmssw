@@ -129,7 +129,7 @@ l1t::PFJet L1SeedConePFJetProducer::makeJet_SW(const std::vector<edm::Ptr<l1t::P
   std::vector<float> pt_deta;
   pt_deta.resize(parts.size());
   std::transform(parts.begin(), parts.end(), pt_deta.begin(), [&seed, &pt](const edm::Ptr<l1t::PFCandidate>& part) {
-    return (part->pt() / pt) * (part->eta() - seed.eta());
+    return (part->pt() / pt) * ( part->eta() - seed.eta() );
   });
   // Accumulate the pt weighted etas. Init to the seed eta, start accumulating at begin()+1 to skip seed
   float eta = std::accumulate(pt_deta.begin() + 1, pt_deta.end(), seed.eta());
@@ -143,7 +143,27 @@ l1t::PFJet L1SeedConePFJetProducer::makeJet_SW(const std::vector<edm::Ptr<l1t::P
   // Accumulate the pt weighted phis. Init to the seed phi, start accumulating at begin()+1 to skip seed
   float phi = std::accumulate(pt_dphi.begin() + 1, pt_dphi.end(), seed.phi());
 
-  l1t::PFJet jet(pt, eta, phi);
+  // mass
+  float E_tot = 0.0;
+  float px_tot = 0.0;
+  float py_tot = 0.0;
+  float pz_tot = 0.0;
+  for (auto it = parts.begin(); it != parts.end(); it++) {
+    float m = (*it)->mass();
+    float px = (*it)->pt() * std::cos( (*it)->phi() );
+    float py = (*it)->pt() * std::sin( (*it)->phi() );
+    float pz = (*it)->pt() * std::sinh( (*it)->eta() );
+    float E = sqrt( m*m + px*px + py*py + pz*pz );
+
+    E_tot += E;
+    px_tot += px;
+    py_tot += py;
+    pz_tot += pz;
+  }
+  float mass = std::sqrt( E_tot*E_tot - px_tot*px_tot - py_tot*py_tot - pz_tot*pz_tot );
+  //printf("mass = %f\n", mass);
+
+  l1t::PFJet jet(pt, eta, phi, mass);    // added mass
   for (auto it = parts.begin(); it != parts.end(); it++) {
     jet.addConstituent(*it);
   }
@@ -151,7 +171,7 @@ l1t::PFJet L1SeedConePFJetProducer::makeJet_SW(const std::vector<edm::Ptr<l1t::P
   if (doCorrections) {
     jet.calibratePt(corrector.correctedPt(jet.pt(), jet.eta()));
   }
-
+  printf("pt = %f, eta = %f, phi = %f, mass = %f\n", jet.pt(), jet.eta(), jet.phi(), jet.mass());
   return jet;
 }
 
@@ -222,7 +242,7 @@ std::vector<l1t::PFJet> L1SeedConePFJetProducer::convertHWToEDM(
     l1t::PFJet edmJet(l1gt::Scales::floatPt(gtJet.v3.pt),
                       l1gt::Scales::floatEta(gtJet.v3.eta),
                       l1gt::Scales::floatPhi(gtJet.v3.phi),
-                      /*mass=*/0.,
+                      5.0,
                       gtJet.v3.pt.V,
                       gtJet.v3.eta.V,
                       gtJet.v3.phi.V);
