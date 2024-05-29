@@ -22,7 +22,8 @@ l1t17x17HistoSeedsSCPFL1PuppiEmulator = l1tSeedConePFJetEmulatorProducer.clone(
     L1PFObjects = 'l1tLayer2Deregionizer:Puppi',
     doCorrections = cms.bool(False),
     correctorFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root"),
-    correctorDir = cms.string('L1PuppiSC4EmuJets')
+    correctorDir = cms.string('L1PuppiSC4EmuJets'),
+    HW=False
     )
 L1TPFHistoSeedJetsTask = cms.Task(
     l1t17x17Phase1JetSeedProducer, l1tLayer2Deregionizer, l1t17x17HistoSeedsSCPFL1PuppiEmulator
