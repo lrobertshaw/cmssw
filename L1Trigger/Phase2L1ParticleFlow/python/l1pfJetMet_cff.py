@@ -8,7 +8,7 @@ l1tSCPFL1Puppi         = l1tSeedConePFJetProducer.clone()
 l1tSCPFL1PuppiEmulator = l1tSeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi',
                                                                 coneSize = cms.double(0.8))    # default is dont use external seeds and dont do corrections
 l1tSCPFL1PuppiCorrectedEmulator = l1tSeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi',
-                                                                     doCorrections = cms.bool(True),
+                                                                     doCorrections = cms.bool(False),
                                                                      correctorFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root"),
                                                                      correctorDir = cms.string('L1PuppiSC4EmuJets'))
 
