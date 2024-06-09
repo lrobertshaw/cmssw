@@ -194,31 +194,38 @@ _phase2_siml1emulator.add(L1TLayer1TaskInputsTask, L1TLayer1Task, L1TLayer2EGTas
 
 # PF Jet
 # ########################################################################
-# Describe here l1PFJets_a_la_Phase1 Task
-# ###############################
+# PHASE 1 HISTOGRAMMER 9X9 JETS
 from L1Trigger.L1CaloTrigger.Phase1L1TJets_9x9_cff import *
-# L1TPFJetsPhase1Task_9x9 = cms.Task( l1tPhase1JetProducer9x9, l1tPhase1JetCalibrator9x9, l1tPhase1JetSumsProducer9x9)
 _phase2_siml1emulator.add(L1TPFJetsPhase1Task_9x9)
 
-
+# PHASE 1 HISTORYGRAMMER 9X9 TRIMMED JETS
 from L1Trigger.L1CaloTrigger.Phase1L1TJets_9x9trimmed_cff import *
-# L1TPFJetsPhase1Task_9x9trimmed = cms.Task(  l1tPhase1JetProducer9x9trimmed, l1tPhase1JetCalibrator9x9trimmed, l1tPhase1JetSumsProducer9x9trimmed)
 _phase2_siml1emulator.add(L1TPFJetsPhase1Task_9x9trimmed)
 
-from L1Trigger.Phase2L1Taus.HPSPFTauProducerPF_cfi import *
-_phase2_siml1emulator.add(l1tHPSPFTauProducerPF)
+# SEEDED CONE SIM AND EMU JETS
+from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
+_phase2_siml1emulator.add(L1TPFJetsTask)        # SC4 SIM AND EMU
+_phase2_siml1emulator.add(L1TPFWideJetsSimTask)    # SC8 SIM
+_phase2_siml1emulator.add(L1TPFWideJetsEmuTask)    # SC8 EMU
 
-from L1Trigger.Phase2L1Taus.HPSPFTauProducerPuppi_cfi import *
-_phase2_siml1emulator.add(l1tHPSPFTauProducerPuppi)
+# HISTO-SEEDED CONE SIM AND EMU JETS
+from L1Trigger.Phase2L1ParticleFlow.l1tHistoSeededConeJets_cff import *
+_phase2_siml1emulator.add(L1TPFHSCJetsSimTask)        # HSC4 SIM
+_phase2_siml1emulator.add(L1TPFHSCJetsEmuTask)        # HSC4 EMU
+_phase2_siml1emulator.add(L1TPFHSCWideJetsSimTask)    # HSC8 SIM
+_phase2_siml1emulator.add(L1TPFHSCWideJetsEmuTask)    # HSC8 EMU
+
+# HSC4 SIM JETS WITH DIFFERENT MASK SIZES
+from L1Trigger.Phase2L1ParticleFlow.l1tHSCMaskSizeSimJets_cff import *
+_phase2_siml1emulator.add(l1tHSCPFL1Puppi9x9SimTask)
+_phase2_siml1emulator.add(l1tHSCPFL1Puppi7x7SimTask)
+_phase2_siml1emulator.add(l1tHSCPFL1Puppi5x5SimTask)
+_phase2_siml1emulator.add(l1tHSCPFL1Puppi3x3SimTask)
+
+
 
 # PF MET
 # ########################################################################
-from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
-_phase2_siml1emulator.add(L1TPFJetsTask)
-
-from L1Trigger.Phase2L1ParticleFlow.l1tHistoSeededConeJets_cff import *
-_phase2_siml1emulator.add(L1TPFHistoSeedJetsTask)
-
 from L1Trigger.Phase2L1ParticleFlow.l1tMETPFProducer_cfi import *
 _phase2_siml1emulator.add(l1tMETPFProducer)
 
@@ -238,3 +245,12 @@ _phase2_siml1emulator.add(L1TBJetsTask)
 # --> add modules
 from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
 phase2_trigger.toReplaceWith( SimL1EmulatorTask , _phase2_siml1emulator)
+
+
+# Taus
+########################################################################
+from L1Trigger.Phase2L1Taus.HPSPFTauProducerPF_cfi import *
+_phase2_siml1emulator.add(l1tHPSPFTauProducerPF)
+
+from L1Trigger.Phase2L1Taus.HPSPFTauProducerPuppi_cfi import *
+_phase2_siml1emulator.add(l1tHPSPFTauProducerPuppi)

@@ -50,3 +50,11 @@ L1TPFJetsExtendedTask = cms.Task(
 L1TPFJetsEmulationTask = cms.Task(
     l1tLayer2Deregionizer, l1tSCPFL1PuppiEmulator, l1tSCPFL1PuppiCorrectedEmulator, l1tSCPFL1PuppiCorrectedEmulatorMHT
 )
+
+# Wide SC jets simulation
+l1tSCPFL1PuppiSimWide = l1tSCPFL1Puppi.clone(coneSize = cms.double(0.8))
+L1TPFWideJetsSimTask = cms.Task(l1tLayer2Deregionizer, l1tSCPFL1PuppiSimWide)
+
+# Wide SC jets emulation
+l1tSCPFL1PuppiEmuWide = l1tSCPFL1PuppiEmulator.clone(coneSize = cms.double(0.8))
+L1TPFWideJetsEmuTask = cms.Task(l1tLayer2Deregionizer, l1tSCPFL1PuppiEmuWide)
