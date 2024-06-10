@@ -5,6 +5,7 @@ from L1Trigger.Phase2L1ParticleFlow.l1tDeregionizerProducer_cfi import l1tDeregi
 from L1Trigger.Phase2L1ParticleFlow.l1tSeedConePFJetProducer_cfi import l1tSeedConePFJetProducer, l1tSeedConePFJetEmulatorProducer
 
 """ HSC4 JETS """
+# SIM JETS
 # Define seeds and jet producer for SW histo SC jets, so running on layer 1 puppi cands
 l1tHSCPFL1PuppiSeedProducer = l1tPhase1JetSeedProducer.clone(
     inputCollectionTag = cms.InputTag("l1tLayer1", "Puppi"),
@@ -18,6 +19,7 @@ l1tHSCPFL1Puppi = l1tSeedConePFJetProducer.clone(
 # Define task
 L1TPFHSCJetsSimTask = cms.Task(l1tLayer2Deregionizer, l1tHSCPFL1PuppiSeedProducer, l1tHSCPFL1Puppi)
 
+# EMU JETS
 # Define seeds and jet producer for HW histo SC jets, so running on deregionizer cands
 l1tHSCPFL1PuppiEmulatorSeedProducer = l1tPhase1JetSeedProducer.clone(
     inputCollectionTag = cms.InputTag('l1tLayer2Deregionizer:Puppi'),
@@ -29,15 +31,9 @@ l1tHSCPFL1PuppiEmulator = l1tSeedConePFJetEmulatorProducer.clone(
     JetSeeds = cms.InputTag('l1tHSCPFL1PuppiEmulatorSeedProducer', 'HSCHWSEEDS'),
     L1PFObjects = cms.InputTag('l1tLayer2Deregionizer:Puppi')
 )
-# Define corrected jet producer
-l1tHSCPFL1PuppiCorrectedEmulator = l1tHSCPFL1PuppiEmulator.clone(
-    doCorrections = cms.bool(True),
-    correctorFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root"),
-    correctorDir = cms.string('L1PuppiSC4EmuJets')
-)
 # Define task
 L1TPFHSCJetsEmuTask = cms.Task(
-    l1tLayer2Deregionizer, l1tHSCPFL1PuppiEmulatorSeedProducer, l1tHSCPFL1PuppiEmulator, l1tHSCPFL1PuppiCorrectedEmulator
+    l1tLayer2Deregionizer, l1tHSCPFL1PuppiEmulatorSeedProducer, l1tHSCPFL1PuppiEmulator
 )
 
 
@@ -52,7 +48,7 @@ l1tHSCPFL1PuppiSimWideSeedProducer = l1tPhase1JetSeedProducer.clone(
     )
 # Define jet producer
 l1tHSCPFL1PuppiSimWide = l1tSeedConePFJetProducer.clone(
-    coneSize = cms.double(0.1),    # CHANGED TO TRY AND OBVS BREAK JETS
+    coneSize = cms.double(0.8),
     useExternalSeeds = cms.bool(True),
     JetSeeds = cms.InputTag('l1tHSCPFL1PuppiSimWideSeedProducer', 'WIDEHSCSIMSEEDS')
 )

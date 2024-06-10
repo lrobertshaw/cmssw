@@ -6,12 +6,11 @@ from L1Trigger.Phase2L1ParticleFlow.l1tSeedConePFJetProducer_cfi import l1tSeedC
 
 
 # 9x9
-l1tHSCPFL1Puppi9x9SeedProducerTrimmed = l1tPhase1JetSeedProducer.clone(
+l1tHSCPFL1Puppi9x9SeedProducer = l1tPhase1JetSeedProducer.clone(
     inputCollectionTag = cms.InputTag('l1tLayer2Deregionizer:Puppi'),
     outputCollectionName = cms.string("HSC9X9EmuSeeds"),
     jetIEtaSize = cms.uint32(9),
     jetIPhiSize = cms.uint32(9),
-    trimmedGrid = cms.bool(True)
     )
 l1tHSCPFL1Puppi9x9Emu = l1tSeedConePFJetEmulatorProducer.clone(
     useExternalSeeds = cms.bool(True),
@@ -27,7 +26,6 @@ l1tHSCPFL1Puppi7x7SeedProducer = l1tPhase1JetSeedProducer.clone(
     outputCollectionName = cms.string("HSC7X7EmuSeeds"),
     jetIEtaSize = cms.uint32(7),
     jetIPhiSize = cms.uint32(7),
-    trimmedGrid = cms.bool(True)
     )
 l1tHSCPFL1Puppi7x7Emu = l1tSeedConePFJetEmulatorProducer.clone(
     useExternalSeeds = cms.bool(True),
@@ -42,7 +40,6 @@ l1tHSCPFL1Puppi5x5SeedProducer = l1tPhase1JetSeedProducer.clone(
     outputCollectionName = cms.string("HSC5X5EmuSeeds"),
     jetIEtaSize = cms.uint32(5),
     jetIPhiSize = cms.uint32(5),
-    trimmedGrid = cms.bool(True)
     )
 l1tHSCPFL1Puppi5x5Emu = l1tSeedConePFJetEmulatorProducer.clone(
     useExternalSeeds = cms.bool(True),
@@ -57,7 +54,6 @@ l1tHSCPFL1Puppi3x3SeedProducer = l1tPhase1JetSeedProducer.clone(
     outputCollectionName = cms.string("HSC3X3EmuSeeds"),
     jetIEtaSize = cms.uint32(3),
     jetIPhiSize = cms.uint32(3),
-    trimmedGrid = cms.bool(True)
     )
 l1tHSCPFL1Puppi3x3Emu = l1tSeedConePFJetEmulatorProducer.clone(
     useExternalSeeds = cms.bool(True),

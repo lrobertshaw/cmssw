@@ -8,68 +8,68 @@ from L1Trigger.Phase2L1ParticleFlow.l1tSeedConePFJetProducer_cfi import l1tSeedC
 # 9x9
 l1tHSCPFL1Puppi9x9SeedProducerTrimmed = l1tPhase1JetSeedProducer.clone(
     inputCollectionTag = cms.InputTag('l1tLayer2Deregionizer:Puppi'),
-    outputCollectionName = cms.string("HSC9X9EmuSeeds"),
+    outputCollectionName = cms.string("HSC9X9EmuSeedsTrimmed"),
     jetIEtaSize = cms.uint32(9),
     jetIPhiSize = cms.uint32(9),
     trimmedGrid = cms.bool(True)
     )
-l1tHSCPFL1Puppi9x9Emu = l1tSeedConePFJetEmulatorProducer.clone(
+l1tHSCPFL1Puppi9x9EmuTrimmed = l1tSeedConePFJetEmulatorProducer.clone(
     useExternalSeeds = cms.bool(True),
-    JetSeeds = cms.InputTag('l1tHSCPFL1Puppi9x9SeedProducer', 'HSC9X9EmuSeeds'),
+    JetSeeds = cms.InputTag('l1tHSCPFL1Puppi9x9SeedProducerTrimmed', 'HSC9X9EmuSeedsTrimmed'),
     L1PFObjects = cms.InputTag('l1tLayer2Deregionizer:Puppi')
 
 )
 # l1tHSCPFL1Puppi9x9EmuTask = cms.Task(l1tLayer2Deregionizer, l1tHSCPFL1Puppi9x9SeedProducer, l1tHSCPFL1Puppi9x9Emu)
 
 # 7x7
-l1tHSCPFL1Puppi7x7SeedProducer = l1tPhase1JetSeedProducer.clone(
+l1tHSCPFL1Puppi7x7SeedProducerTrimmed = l1tPhase1JetSeedProducer.clone(
     inputCollectionTag = cms.InputTag('l1tLayer2Deregionizer:Puppi'),
-    outputCollectionName = cms.string("HSC7X7EmuSeeds"),
+    outputCollectionName = cms.string("HSC7X7EmuSeedsTrimmed"),
     jetIEtaSize = cms.uint32(7),
     jetIPhiSize = cms.uint32(7),
     trimmedGrid = cms.bool(True)
     )
-l1tHSCPFL1Puppi7x7Emu = l1tSeedConePFJetEmulatorProducer.clone(
+l1tHSCPFL1Puppi7x7EmuTrimmed = l1tSeedConePFJetEmulatorProducer.clone(
     useExternalSeeds = cms.bool(True),
-    JetSeeds = cms.InputTag('l1tHSCPFL1Puppi7x7SeedProducer', 'HSC7X7EmuSeeds'),
+    JetSeeds = cms.InputTag('l1tHSCPFL1Puppi7x7SeedProducerTrimmed', 'HSC7X7EmuSeedsTrimmed'),
     L1PFObjects = cms.InputTag('l1tLayer2Deregionizer:Puppi')
 )
 # l1tHSCPFL1Puppi7x7EmuTask = cms.Task(l1tLayer2Deregionizer, l1tHSCPFL1Puppi7x7SeedProducer, l1tHSCPFL1Puppi7x7Emu)
 
 # 5x5
-l1tHSCPFL1Puppi5x5SeedProducer = l1tPhase1JetSeedProducer.clone(
+l1tHSCPFL1Puppi5x5SeedProducerTrimmed = l1tPhase1JetSeedProducer.clone(
     inputCollectionTag = cms.InputTag('l1tLayer2Deregionizer:Puppi'),
-    outputCollectionName = cms.string("HSC5X5EmuSeeds"),
+    outputCollectionName = cms.string("HSC5X5EmuSeedsTrimmed"),
     jetIEtaSize = cms.uint32(5),
     jetIPhiSize = cms.uint32(5),
     trimmedGrid = cms.bool(True)
     )
-l1tHSCPFL1Puppi5x5Emu = l1tSeedConePFJetEmulatorProducer.clone(
+l1tHSCPFL1Puppi5x5EmuTrimmed = l1tSeedConePFJetEmulatorProducer.clone(
     useExternalSeeds = cms.bool(True),
-    JetSeeds = cms.InputTag('l1tHSCPFL1Puppi5x5SeedProducer', 'HSC5X5EmuSeeds'),
+    JetSeeds = cms.InputTag('l1tHSCPFL1Puppi5x5SeedProducerTrimmed', 'HSC5X5EmuSeedsTrimmed'),
     L1PFObjects = cms.InputTag('l1tLayer2Deregionizer:Puppi')
 )
 # l1tHSCPFL1Puppi5x5EmuTask = cms.Task(l1tLayer2Deregionizer, l1tHSCPFL1Puppi5x5SeedProducer, l1tHSCPFL1Puppi5x5Emu)
 
 # 3x3
-l1tHSCPFL1Puppi3x3SeedProducer = l1tPhase1JetSeedProducer.clone(
+l1tHSCPFL1Puppi3x3SeedProducerTrimmed = l1tPhase1JetSeedProducer.clone(
     inputCollectionTag = cms.InputTag('l1tLayer2Deregionizer:Puppi'),
-    outputCollectionName = cms.string("HSC3X3EmuSeeds"),
+    outputCollectionName = cms.string("HSC3X3EmuSeedsTrimmed"),
     jetIEtaSize = cms.uint32(3),
     jetIPhiSize = cms.uint32(3),
     trimmedGrid = cms.bool(True)
     )
-l1tHSCPFL1Puppi3x3Emu = l1tSeedConePFJetEmulatorProducer.clone(
+l1tHSCPFL1Puppi3x3EmuTrimmed = l1tSeedConePFJetEmulatorProducer.clone(
     useExternalSeeds = cms.bool(True),
-    JetSeeds = cms.InputTag('l1tHSCPFL1Puppi3x3SeedProducer', 'HSC3X3EmuSeeds'),
+    JetSeeds = cms.InputTag('l1tHSCPFL1Puppi3x3SeedProducerTrimmed', 'HSC3X3EmuSeedsTrimmed'),
     L1PFObjects = cms.InputTag('l1tLayer2Deregionizer:Puppi')
 )
 # l1tHSCPFL1Puppi3x3EmuTask = cms.Task(l1tLayer2Deregionizer, l1tHSCPFL1Puppi3x3SeedProducer, l1tHSCPFL1Puppi3x3Emu)
 
-l1tHSCPFL1PuppiEmuMasksTask = cms.Task(
+l1tHSCPFL1PuppiEmuMasksTaskTrimmed = cms.Task(
     l1tLayer2Deregionizer,
-    l1tHSCPFL1Puppi9x9SeedProducer, l1tHSCPFL1Puppi9x9Emu,
-    l1tHSCPFL1Puppi7x7SeedProducer, l1tHSCPFL1Puppi7x7Emu,
-    l1tHSCPFL1Puppi5x5SeedProducer, l1tHSCPFL1Puppi5x5Emu,
-    l1tHSCPFL1Puppi3x3SeedProducer, l1tHSCPFL1Puppi3x3Emu
+    l1tHSCPFL1Puppi9x9SeedProducerTrimmed, l1tHSCPFL1Puppi9x9EmuTrimmed,
+    l1tHSCPFL1Puppi7x7SeedProducerTrimmed, l1tHSCPFL1Puppi7x7EmuTrimmed,
+    l1tHSCPFL1Puppi5x5SeedProducerTrimmed, l1tHSCPFL1Puppi5x5EmuTrimmed,
+    l1tHSCPFL1Puppi3x3SeedProducerTrimmed, l1tHSCPFL1Puppi3x3EmuTrimmed
 )
