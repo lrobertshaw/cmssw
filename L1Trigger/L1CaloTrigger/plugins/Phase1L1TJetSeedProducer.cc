@@ -267,18 +267,18 @@ l1t::PFCandidateCollection Phase1L1TJetSeedProducer::findSeeds(float seedThresho
   for (int iPhi = 1; iPhi <= nBinsY; iPhi++) {
     for (int iEta = 1; iEta <= nBinsX; iEta++) {
       float centralPt = getSeedEnergy(iEta, iPhi);    // Gets the bin content at eta and phi from the caloGrid_
-      // if (centralPt < seedThreshold)    // If the pt in the current bin is less than the threshold to be a seed, break current loop iteration
-      //   continue;
+      if (centralPt < seedThreshold)    // If the pt in the current bin is less than the threshold to be a seed, break current loop iteration
+        continue;
 
       bool isLocalMaximum = true;
       // Scanning through the grid centered on the seed
       for (int etaIndex = -etaHalfSize; etaIndex <= etaHalfSize; etaIndex++) {
         for (int phiIndex = -phiHalfSize; phiIndex <= phiHalfSize; phiIndex++) {
           // This nested for loop scans over the grid around the current cell
-          // if (trimmedGrid_) {l
-          //   if (trimTower(etaIndex, phiIndex))
-          //     continue;
-          // }
+          if (trimmedGrid_) {
+            if (trimTower(etaIndex, phiIndex))
+              continue;
+          }
 
           if ((etaIndex == 0) && (phiIndex == 0))    // Don't check central cell itself
             continue;
@@ -643,17 +643,52 @@ std::pair<double, double> Phase1L1TJetSeedProducer::regionEtaPhiUpEdges(const un
 }
 
 bool Phase1L1TJetSeedProducer::trimTower(const int etaIndex, const int phiIndex) const {
-  int etaHalfSize = jetIEtaSize_ / 2;
+  
+  int etaHalfSize = jetIEtaSize_ / 2;    // 4 is jetIEtaSize = 9
   int phiHalfSize = jetIPhiSize_ / 2;
 
-  if (etaIndex == -etaHalfSize || etaIndex == etaHalfSize) {
-    if (phiIndex <= -phiHalfSize + 1 || phiIndex >= phiHalfSize - 1) {
-      return true;
+  if (jetIEtaSize_ == 17 && jetIPhiSize_ == 17){    // Trimming if jet mask is wide cone
+    // DOES THE OUTER TRIM
+    if (etaIndex == -etaHalfSize || etaIndex == etaHalfSize) {
+      if (phiIndex <= -phiHalfSize + 5 || phiIndex >= phiHalfSize - 5) {
+        return true;
+      }
     }
-  } else if (etaIndex == -etaHalfSize + 1 || etaIndex == etaHalfSize - 1) {
-    if (phiIndex == -phiHalfSize || phiIndex == phiHalfSize) {
-      return true;
+    else if (etaIndex <= -etaHalfSize + 5 || etaIndex >= etaHalfSize - 5) {
+      if (phiIndex == -phiHalfSize || phiIndex == phiHalfSize) {
+        return true;
+      }
     }
+
+    // DOES THE INNER TRIM
+    else if (etaIndex == -etaHalfSize + 1 || etaIndex == etaHalfSize - 1) {
+      if (phiIndex <= -phiHalfSize + 3 || phiIndex >= phiHalfSize - 3) {
+        return true;
+      }
+    }
+    else if (etaIndex <= -etaHalfSize + 3 || etaIndex >= etaHalfSize - 3) {
+      if (phiIndex == -phiHalfSize + 1 || phiIndex == phiHalfSize - 1) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  else{    // Trimming in the usual case
+    if (etaIndex == -etaHalfSize || etaIndex == etaHalfSize) {
+      // if current position in mask (eta/phi index) is on the far edge in Ieta
+      if (phiIndex <= -phiHalfSize + 1 || phiIndex >= phiHalfSize - 1) {
+        // if current position in mask is on far edges of phi
+        // less than or = -3 or greater than or equal 3
+        return true;
+      }
+    }
+    else if (etaIndex == -etaHalfSize + 1 || etaIndex == etaHalfSize - 1) {
+      if (phiIndex == -phiHalfSize || phiIndex == phiHalfSize) {
+        return true;
+      }
+    }
+    return false;
   }
 
   return false;
