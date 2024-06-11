@@ -204,6 +204,9 @@ from L1Trigger.L1CaloTrigger.Phase1L1TJets_9x9trimmed_cff import *
 _phase2_siml1emulator.add(L1TPFJetsPhase1Task_9x9trimmed)      # Histojets sim trimmed
 _phase2_siml1emulator.add(L1TPuppiJetsPhase1Task_9x9trimmed)   # Histojets emu trimmed
 
+from L1Trigger.L1CaloTrigger.Phase1L1TJets_MaskSizes_cff import *
+_phase2_siml1emulator.add(L1TPuppiJetsPhase1Task_9x9uncalibrated)      # Histojets uncalibrated
+
 # SEEDED CONE SIM AND EMU JETS
 from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
 _phase2_siml1emulator.add(L1TPFJetsTask)        # SC4 SIM AND EMU
@@ -224,11 +227,17 @@ _phase2_siml1emulator.add(L1TPFHSCJetsEmuTaskTrimmed)   # HSC4 EMU TRIMMED
 
 # HSC4 EMU JETS WITH DIFFERENT MASK SIZES, UNTRIMMED
 from L1Trigger.Phase2L1ParticleFlow.l1tHSCMaskSizeEmuJets_cff import *
-_phase2_siml1emulator.add(l1tHSCPFL1PuppiEmuMasksTask)   # HSC4 masks
+_phase2_siml1emulator.add(l1tHSCPFL1Puppi9x9EmuTask)   # HSC4 masks
+_phase2_siml1emulator.add(l1tHSCPFL1Puppi7x7EmuTask)   # HSC4 masks
+_phase2_siml1emulator.add(l1tHSCPFL1Puppi5x5EmuTask)   # HSC4 masks
+_phase2_siml1emulator.add(l1tHSCPFL1Puppi3x3EmuTask)   # HSC4 masks
 
 # HSC4 EMU JETS WITH DIFFERENT MASK SIZES, TRIMMED
 from L1Trigger.Phase2L1ParticleFlow.l1tHSCMaskSizeEmuJetsTrimmed_cff import *
-_phase2_siml1emulator.add(l1tHSCPFL1PuppiEmuMasksTaskTrimmed)    # HSC4 masks trimmed
+_phase2_siml1emulator.add(l1tHSCPFL1Puppi9x9EmuTaskTrimmed)   # HSC4 masks
+_phase2_siml1emulator.add(l1tHSCPFL1Puppi7x7EmuTaskTrimmed)   # HSC4 masks
+_phase2_siml1emulator.add(l1tHSCPFL1Puppi5x5EmuTaskTrimmed)   # HSC4 masks
+_phase2_siml1emulator.add(l1tHSCPFL1Puppi3x3EmuTaskTrimmed)   # HSC4 masks
 
 # HSC4 EMU JETS WITH DIFFERENT MASK AND SEED SIZES, TRIMMED AND UNTRIMMED
 from L1Trigger.Phase2L1ParticleFlow.l1tHSCMaskSeedSizesJets_cff import *

@@ -19,7 +19,7 @@ l1tHSCPFL1Puppi9x9EmuTrimmed = l1tSeedConePFJetEmulatorProducer.clone(
     L1PFObjects = cms.InputTag('l1tLayer2Deregionizer:Puppi')
 
 )
-# l1tHSCPFL1Puppi9x9EmuTask = cms.Task(l1tLayer2Deregionizer, l1tHSCPFL1Puppi9x9SeedProducer, l1tHSCPFL1Puppi9x9Emu)
+l1tHSCPFL1Puppi9x9EmuTaskTrimmed = cms.Task(l1tLayer2Deregionizer, l1tHSCPFL1Puppi9x9SeedProducerTrimmed, l1tHSCPFL1Puppi9x9EmuTrimmed)
 
 # 7x7
 l1tHSCPFL1Puppi7x7SeedProducerTrimmed = l1tPhase1JetSeedProducer.clone(
@@ -34,7 +34,7 @@ l1tHSCPFL1Puppi7x7EmuTrimmed = l1tSeedConePFJetEmulatorProducer.clone(
     JetSeeds = cms.InputTag('l1tHSCPFL1Puppi7x7SeedProducerTrimmed', 'HSC7X7EmuSeedsTrimmed'),
     L1PFObjects = cms.InputTag('l1tLayer2Deregionizer:Puppi')
 )
-# l1tHSCPFL1Puppi7x7EmuTask = cms.Task(l1tLayer2Deregionizer, l1tHSCPFL1Puppi7x7SeedProducer, l1tHSCPFL1Puppi7x7Emu)
+l1tHSCPFL1Puppi7x7EmuTaskTrimmed = cms.Task(l1tLayer2Deregionizer, l1tHSCPFL1Puppi7x7SeedProducerTrimmed, l1tHSCPFL1Puppi7x7EmuTrimmed)
 
 # 5x5
 l1tHSCPFL1Puppi5x5SeedProducerTrimmed = l1tPhase1JetSeedProducer.clone(
@@ -49,7 +49,7 @@ l1tHSCPFL1Puppi5x5EmuTrimmed = l1tSeedConePFJetEmulatorProducer.clone(
     JetSeeds = cms.InputTag('l1tHSCPFL1Puppi5x5SeedProducerTrimmed', 'HSC5X5EmuSeedsTrimmed'),
     L1PFObjects = cms.InputTag('l1tLayer2Deregionizer:Puppi')
 )
-# l1tHSCPFL1Puppi5x5EmuTask = cms.Task(l1tLayer2Deregionizer, l1tHSCPFL1Puppi5x5SeedProducer, l1tHSCPFL1Puppi5x5Emu)
+l1tHSCPFL1Puppi5x5EmuTaskTrimmed = cms.Task(l1tLayer2Deregionizer, l1tHSCPFL1Puppi5x5SeedProducerTrimmed, l1tHSCPFL1Puppi5x5EmuTrimmed)
 
 # 3x3
 l1tHSCPFL1Puppi3x3SeedProducerTrimmed = l1tPhase1JetSeedProducer.clone(
@@ -64,12 +64,4 @@ l1tHSCPFL1Puppi3x3EmuTrimmed = l1tSeedConePFJetEmulatorProducer.clone(
     JetSeeds = cms.InputTag('l1tHSCPFL1Puppi3x3SeedProducerTrimmed', 'HSC3X3EmuSeedsTrimmed'),
     L1PFObjects = cms.InputTag('l1tLayer2Deregionizer:Puppi')
 )
-# l1tHSCPFL1Puppi3x3EmuTask = cms.Task(l1tLayer2Deregionizer, l1tHSCPFL1Puppi3x3SeedProducer, l1tHSCPFL1Puppi3x3Emu)
-
-l1tHSCPFL1PuppiEmuMasksTaskTrimmed = cms.Task(
-    l1tLayer2Deregionizer,
-    l1tHSCPFL1Puppi9x9SeedProducerTrimmed, l1tHSCPFL1Puppi9x9EmuTrimmed,
-    l1tHSCPFL1Puppi7x7SeedProducerTrimmed, l1tHSCPFL1Puppi7x7EmuTrimmed,
-    l1tHSCPFL1Puppi5x5SeedProducerTrimmed, l1tHSCPFL1Puppi5x5EmuTrimmed,
-    l1tHSCPFL1Puppi3x3SeedProducerTrimmed, l1tHSCPFL1Puppi3x3EmuTrimmed
-)
+l1tHSCPFL1Puppi3x3EmuTaskTrimmed = cms.Task(l1tLayer2Deregionizer, l1tHSCPFL1Puppi3x3SeedProducerTrimmed, l1tHSCPFL1Puppi3x3EmuTrimmed)
