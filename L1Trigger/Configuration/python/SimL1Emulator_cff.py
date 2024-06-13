@@ -242,31 +242,31 @@ _phase2_siml1emulator.add(L1TLayer1TaskInputsTask, L1TLayer1Task, L1TLayer2EGTas
 
 # PF Jet
 # ########################################################################
-# Describe here l1PFJets_a_la_Phase1 Task
-# ###############################
 from L1Trigger.L1CaloTrigger.Phase1L1TJets_9x9_cff import *
-# L1TPFJetsPhase1Task_9x9 = cms.Task( l1tPhase1JetProducer9x9, l1tPhase1JetCalibrator9x9, l1tPhase1JetSumsProducer9x9)
-_phase2_siml1emulator.add(L1TPFJetsPhase1Task_9x9)
-
+_phase2_siml1emulator.add(L1TPFJetsPhase1Task_9x9)    # Histojets 9x9
 
 from L1Trigger.L1CaloTrigger.Phase1L1TJets_9x9trimmed_cff import *
-# L1TPFJetsPhase1Task_9x9trimmed = cms.Task(  l1tPhase1JetProducer9x9trimmed, l1tPhase1JetCalibrator9x9trimmed, l1tPhase1JetSumsProducer9x9trimmed)
-_phase2_siml1emulator.add(L1TPFJetsPhase1Task_9x9trimmed)
+_phase2_siml1emulator.add(L1TPFJetsPhase1Task_9x9trimmed)    # Histojets trimmed 9x9
 
-from L1Trigger.Phase2L1ParticleFlow.L1HPSPFTauProducer_cfi import *
-_phase2_siml1emulator.add(l1HPSPFTauEmuProducer)
+from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
+_phase2_siml1emulator.add(L1TPFJetsEmulationTask)    # Seeded cone jets
+
+from L1Trigger.Phase2L1ParticleFlow.l1tHistoSeededConeJets_cff import *
+_phase2_siml1emulator.add(L1TPFHSC8JetsEmuTask)    # HSC8 jets
+_phase2_siml1emulator.add(L1TPFHSC8JetsEmuTaskTrimmed)    # HSC8 jets trimmed
+
+
 
 # PF MET
-# ########################################################################
-from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
-_phase2_siml1emulator.add(L1TPFJetsEmulationTask)
-from L1Trigger.Phase2L1ParticleFlow.l1tHistoSeededConeJets_cff import *
-_phase2_siml1emulator.add(L1TPFHistoSeedJetsTask)
-
+##############################################################################
 from L1Trigger.Phase2L1ParticleFlow.l1tMETPFProducer_cfi import *
 _phase2_siml1emulator.add(l1tMETPFProducer)
 _phase2_siml1emulator.add(l1tMETMLProducer)
 
+# Tau producer
+############################################################################
+from L1Trigger.Phase2L1ParticleFlow.L1HPSPFTauProducer_cfi import *
+_phase2_siml1emulator.add(l1HPSPFTauEmuProducer)
 
 # NNTaus
 # ########################################################################
