@@ -46,6 +46,7 @@ private:
 
   /// Get the energy of a certain tower while correctly handling phi periodicity in case of overflow
   float getTowerEnergy(int iEta, int iPhi) const;
+  float getSeedEnergy(int iEta, int iPhi) const;
 
   // Sort the seeds as in firmware
   void sortSeeds(const l1t::PFCandidateCollection unsortedJets, l1t::PFCandidateCollection& sortedJets );
@@ -103,6 +104,7 @@ private:
   unsigned int jetIEtaSize_;
   unsigned int jetIPhiSize_;
   bool trimmedGrid_;
+  unsigned int seedSize_;
   double seedPtThreshold_;
   double ptlsb_;
   double philsb_;
@@ -116,8 +118,7 @@ private:
 
 };
 
-Phase1L1TJetSeedProducer::Phase1L1TJetSeedProducer(const edm::ParameterSet& iConfig)
-    :  // getting configuration settings
+Phase1L1TJetSeedProducer::Phase1L1TJetSeedProducer(const edm::ParameterSet& iConfig):  // getting configuration settings
       inputCollectionTag_{
           consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("inputCollectionTag"))},
       etaBinning_(iConfig.getParameter<std::vector<double>>("etaBinning")),
@@ -128,6 +129,7 @@ Phase1L1TJetSeedProducer::Phase1L1TJetSeedProducer(const edm::ParameterSet& iCon
       jetIEtaSize_(iConfig.getParameter<unsigned int>("jetIEtaSize")),
       jetIPhiSize_(iConfig.getParameter<unsigned int>("jetIPhiSize")),
       trimmedGrid_(iConfig.getParameter<bool>("trimmedGrid")),
+      seedSize_(iConfig.getParameter<unsigned int>("seedSize")),
       seedPtThreshold_(iConfig.getParameter<double>("seedPtThreshold")),
       ptlsb_(iConfig.getParameter<double>("ptlsb")),
       philsb_(iConfig.getParameter<double>("philsb")),
@@ -205,11 +207,59 @@ void Phase1L1TJetSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
   return;
 }
 
+
+float Phase1L1TJetSeedProducer::getSeedEnergy(int iEta, int iPhi) const {
+  // Function should get the seed energy given some seed size, where seed size 1 checks only the current position
+  // Gets the total energy in a grid of +/- N around given iEta and iPhi
+  int N = ( (int)seedSize_ - 1 ) / 2;
+
+  float sumNxNenergy = 0;
+  for (int etaIndex = iEta-N; etaIndex <= iEta+N; etaIndex++) {
+    for (int phiIndex = iPhi-N; phiIndex <= iPhi+N; phiIndex++) {
+      sumNxNenergy += getTowerEnergy(etaIndex, phiIndex);
+    }
+  }
+  return sumNxNenergy;
+}
+
+
+// COMMENTED OUT AS CAUSED COMPILATION ERRORS
+// std::unique_ptr<TH2F> Phase1L1TJetSeedProducer::histogramSums(){
+
+//   // Get num bins in X and Y
+//   int nBinsX = caloGrid_->GetNbinsX();
+//   int nBinsY = caloGrid_->GetNbinsY();
+
+//   std::unique_ptr<TH2F> summedCaloGrid_;
+
+//   int etaHalfSize = (int)jetIEtaSize_ / 2;    // note truncation towards zero
+//   int phiHalfSize = (int)jetIPhiSize_ / 2;
+
+//   // Iterate over every bin in IEta and IPhi
+//   for (int iPhi = 1; iPhi <= nBinsY; iPhi++) {
+//     for (int iEta = 1; iEta <= nBinsX; iEta++) {
+//       // For each bin in Ieta and IPhi, iterate through the mask and calculate the sum of the
+//       // energy within it
+//       float ptSum = 0;    // Gets the bin content at eta and phi from the caloGrid_
+//       // Scanning through the grid centered on the seed
+//       for (int etaIndex = -etaHalfSize; etaIndex <= etaHalfSize; etaIndex++) {
+//         for (int phiIndex = -phiHalfSize; phiIndex <= phiHalfSize; phiIndex++) {
+//           // This nested for loop scans over the grid around the current cell
+//           ptSum += getTowerEnergy(iEta + etaIndex, iPhi + phiIndex);
+//         }
+//       }
+//       summedCaloGrid_[iEta][iPhi] = ptSum  // Set value at current point as sum of energy in mask
+//     }
+//   }
+//   return summedCaloGrid_
+// }
+
+
 l1t::PFCandidateCollection Phase1L1TJetSeedProducer::findSeeds(float seedThreshold) const {
   int nBinsX = caloGrid_->GetNbinsX();
   int nBinsY = caloGrid_->GetNbinsY();
 
-  l1t::PFCandidateCollection seeds;
+  l1t::PFCandidateCollection seeds;    // object to output seeds to when identified
 
   int etaHalfSize = (int)jetIEtaSize_ / 2;
   int phiHalfSize = (int)jetIPhiSize_ / 2;
@@ -221,37 +271,40 @@ l1t::PFCandidateCollection Phase1L1TJetSeedProducer::findSeeds(float seedThresho
 
   for (int iPhi = 1; iPhi <= nBinsY; iPhi++) {
     for (int iEta = 1; iEta <= nBinsX; iEta++) {
-      float centralPt = caloGrid_->GetBinContent(iEta, iPhi);
-      if (centralPt < seedThreshold)
+      float centralPt = getSeedEnergy(iEta, iPhi);    // Gets the bin content at eta and phi from the caloGrid_
+      if (centralPt < seedThreshold)    // If the pt in the current bin is less than the threshold to be a seed, break current loop iteration
         continue;
 
       bool isLocalMaximum = true;
       // Scanning through the grid centered on the seed
       for (int etaIndex = -etaHalfSize; etaIndex <= etaHalfSize; etaIndex++) {
         for (int phiIndex = -phiHalfSize; phiIndex <= phiHalfSize; phiIndex++) {
+          // This nested for loop scans over the grid around the current cell
           if (trimmedGrid_) {
             if (trimTower(etaIndex, phiIndex))
               continue;
           }
 
-          if ((etaIndex == 0) && (phiIndex == 0))
+          if ((etaIndex == 0) && (phiIndex == 0))    // Don't check central cell itself
             continue;
+          // Below if-else statements check that central cell is local maximum in 9x9 grid
           if (etaIndex > 0) {
-            isLocalMaximum = ((isLocalMaximum) && (centralPt > getTowerEnergy(iEta + etaIndex, iPhi + phiIndex)));
+            isLocalMaximum = ((isLocalMaximum) && (centralPt > getSeedEnergy(iEta + etaIndex, iPhi + phiIndex)));
           } else if ( etaIndex < 0 ) {
-            isLocalMaximum = ((isLocalMaximum) && (centralPt >= getTowerEnergy(iEta + etaIndex, iPhi + phiIndex)));
+            isLocalMaximum = ((isLocalMaximum) && (centralPt >= getSeedEnergy(iEta + etaIndex, iPhi + phiIndex)));
           }
           else {
             if ( phiIndex > 0 ) {
-              isLocalMaximum = ((isLocalMaximum) && (centralPt > getTowerEnergy(iEta + etaIndex, iPhi + phiIndex)));
+              isLocalMaximum = ((isLocalMaximum) && (centralPt > getSeedEnergy(iEta + etaIndex, iPhi + phiIndex)));
             }
             else {
-              isLocalMaximum = ((isLocalMaximum) && (centralPt >= getTowerEnergy(iEta + etaIndex, iPhi + phiIndex)));
+              isLocalMaximum = ((isLocalMaximum) && (centralPt >= getSeedEnergy(iEta + etaIndex, iPhi + phiIndex)));
             }
           }
         }
       }
 
+      // If central cell is local maximum....
       if (isLocalMaximum) {
         l1t::PFCandidate p;
         reco::Candidate::PolarLorentzVector pfVector;
@@ -286,7 +339,7 @@ void Phase1L1TJetSeedProducer::sortSeeds(const l1t::PFCandidateCollection unsort
   const unsigned int nEtaRegions = 4;
   const unsigned int nInputsPerSortModule = 18;
   const unsigned int nOutputSeedsPerEtaRegion = 4;
-  const unsigned int nOutputSeedsToGT = 12;
+  const unsigned int nOutputSeedsToGT = 16;
 
   unsigned int nUnsortedSeeds = unsortedSeeds.size();
   // Get seeds into the regions and time ordering seen in firmware
@@ -508,6 +561,7 @@ void Phase1L1TJetSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<unsigned int>("jetIEtaSize", 7);
   desc.add<unsigned int>("jetIPhiSize", 7);
   desc.add<bool>("trimmedGrid", false);
+  desc.add<unsigned int>("seedSize", 1);
   desc.add<double>("seedPtThreshold", 5);
   desc.add<double>("ptlsb", 0.25), desc.add<double>("philsb", 0.0043633231), desc.add<double>("etalsb", 0.0043633231),
   desc.add<string>("outputCollectionName", "UncalibratedPhase1L1TJetFromPfCandidates");
@@ -594,19 +648,55 @@ std::pair<double, double> Phase1L1TJetSeedProducer::regionEtaPhiUpEdges(const un
 }
 
 bool Phase1L1TJetSeedProducer::trimTower(const int etaIndex, const int phiIndex) const {
-  int etaHalfSize = jetIEtaSize_ / 2;
+  
+  int etaHalfSize = jetIEtaSize_ / 2;    // 4 is jetIEtaSize = 9
   int phiHalfSize = jetIPhiSize_ / 2;
 
-  if (etaIndex == -etaHalfSize || etaIndex == etaHalfSize) {
-    if (phiIndex <= -phiHalfSize + 1 || phiIndex >= phiHalfSize - 1) {
-      return true;
+  if (jetIEtaSize_ == 17 && jetIPhiSize_ == 17){    // Trimming if jet mask is wide cone
+    // DOES THE OUTER TRIM
+    if (etaIndex == -etaHalfSize || etaIndex == etaHalfSize) {
+      if (phiIndex <= -phiHalfSize + 5 || phiIndex >= phiHalfSize - 5) {
+        return true;
+      }
     }
-  } else if (etaIndex == -etaHalfSize + 1 || etaIndex == etaHalfSize - 1) {
-    if (phiIndex == -phiHalfSize || phiIndex == phiHalfSize) {
-      return true;
+    else if (etaIndex <= -etaHalfSize + 5 || etaIndex >= etaHalfSize - 5) {
+      if (phiIndex == -phiHalfSize || phiIndex == phiHalfSize) {
+        return true;
+      }
     }
+
+    // DOES THE INNER TRIM
+    else if (etaIndex == -etaHalfSize + 1 || etaIndex == etaHalfSize - 1) {
+      if (phiIndex <= -phiHalfSize + 3 || phiIndex >= phiHalfSize - 3) {
+        return true;
+      }
+    }
+    else if (etaIndex <= -etaHalfSize + 3 || etaIndex >= etaHalfSize - 3) {
+      if (phiIndex == -phiHalfSize + 1 || phiIndex == phiHalfSize - 1) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  else{    // Trimming in the usual case
+    if (etaIndex == -etaHalfSize || etaIndex == etaHalfSize) {
+      // if current position in mask (eta/phi index) is on the far edge in Ieta
+      if (phiIndex <= -phiHalfSize + 1 || phiIndex >= phiHalfSize - 1) {
+        // if current position in mask is on far edges of phi
+        // less than or = -3 or greater than or equal 3
+        return true;
+      }
+    }
+    else if (etaIndex == -etaHalfSize + 1 || etaIndex == etaHalfSize - 1) {
+      if (phiIndex == -phiHalfSize || phiIndex == phiHalfSize) {
+        return true;
+      }
+    }
+    return false;
   }
 
   return false;
 }
+
 DEFINE_FWK_MODULE(Phase1L1TJetSeedProducer);
