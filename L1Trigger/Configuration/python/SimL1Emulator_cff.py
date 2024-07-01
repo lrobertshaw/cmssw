@@ -242,18 +242,29 @@ _phase2_siml1emulator.add(L1TLayer1TaskInputsTask, L1TLayer1Task, L1TLayer2EGTas
 
 # PF Jet
 # ########################################################################
+# HISTOJETS
 from L1Trigger.L1CaloTrigger.Phase1L1TJets_9x9_cff import *
 _phase2_siml1emulator.add(L1TPFJetsPhase1Task_9x9)    # Histojets 9x9
 
 from L1Trigger.L1CaloTrigger.Phase1L1TJets_9x9trimmed_cff import *
 _phase2_siml1emulator.add(L1TPFJetsPhase1Task_9x9trimmed)    # Histojets trimmed 9x9
 
+from L1Trigger.L1CaloTrigger.Phase1L1TJets_wide_cff import *
+_phase2_siml1emulator.add(L1TPFWideJetsPhase1Task_18x18)    # wide histojets
+_phase2_siml1emulator.add(L1TPFWideJetsPhase1Task_9x9)    # wide histojets double binned
+
+# SEEDED CONE
 from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
 _phase2_siml1emulator.add(L1TPFJetsEmulationTask)    # Seeded cone jets
 
+
+# HISTO-SEEDED CONE
 from L1Trigger.Phase2L1ParticleFlow.l1tHistoSeededConeJets_cff import *
 _phase2_siml1emulator.add(L1TPFHSC8JetsEmuTask)    # HSC8 jets
 _phase2_siml1emulator.add(L1TPFHSC8JetsEmuTaskTrimmed)    # HSC8 jets trimmed
+
+from L1Trigger.Phase2L1ParticleFlow.l1tHSCJets_DoubleBinSize_cff import *
+_phase2_siml1emulator.add(L1TPFHSC8JetsEmuTaskDoubleBinSize)    # HSC8 jets double bin size
 
 
 
