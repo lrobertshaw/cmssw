@@ -166,17 +166,17 @@ l1t::PFJet L1SeedConePFJetProducer::makeJet_SW(const std::vector<edm::Ptr<l1t::P
     pz_tot += pz;
   }
   float mass = std::sqrt( E_tot*E_tot - px_tot*px_tot - py_tot*py_tot - pz_tot*pz_tot );
-  //printf("mass = %f\n", mass);
+  // printf("mass = %f\n", mass);
 
   l1t::PFJet jet(pt, eta, phi, mass);    // added mass
-  for (auto it = parts.begin(); it != parts.end(); it++) {
+  for (auto it = parts.begin(); it != parts.end() ; it++) {
     jet.addConstituent(*it);
   }
 
   if (doCorrections) {
     jet.calibratePt(corrector.correctedPt(jet.pt(), jet.eta()));
   }
-  printf("pt = %f, eta = %f, phi = %f, mass = %f\n", jet.pt(), jet.eta(), jet.phi(), jet.mass());
+  // printf("pt = %f, eta = %f, phi = %f, mass = %f\n", jet.pt(), jet.eta(), jet.phi(), jet.mass());
   return jet;
 }
 
