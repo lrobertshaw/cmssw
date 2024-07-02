@@ -257,7 +257,6 @@ _phase2_siml1emulator.add(L1TPFWideJetsPhase1Task_9x9)    # wide histojets doubl
 from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
 _phase2_siml1emulator.add(L1TPFJetsEmulationTask)    # Seeded cone jets
 
-
 # HISTO-SEEDED CONE
 from L1Trigger.Phase2L1ParticleFlow.l1tHistoSeededConeJets_cff import *
 _phase2_siml1emulator.add(L1TPFHSC8JetsEmuTask)    # HSC8 jets
