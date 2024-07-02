@@ -6,6 +6,9 @@ from L1Trigger.Phase2L1ParticleFlow.l1tDeregionizerProducer_cfi import l1tDeregi
 l1tSC4PFL1PF            = l1SeedConePFJetProducer.clone(L1PFObjects = 'l1tLayer1:PF')
 l1tSC4PFL1Puppi         = l1SeedConePFJetProducer.clone()
 l1tSC4PFL1PuppiEmulator = l1SeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi')
+l1tSC8PFL1Puppi = l1SeedConePFJetProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi',
+                                                coneSize = cms.double(0.8)
+                                                )
 l1tSC8PFL1PuppiEmulator = l1SeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi',
                                                                  coneSize = cms.double(0.8))
 l1tSC4PFL1PuppiCorrectedEmulator = l1SeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi',
@@ -44,7 +47,7 @@ l1tSC4PFL1PuppiExtendedCorrectedEmulator = l1SeedConePFJetEmulatorProducer.clone
 
 L1TPFJetsTask = cms.Task(
     l1tLayer2Deregionizer, l1tSC4PFL1PF, l1tSC4PFL1Puppi, l1tSC4PFL1PuppiEmulator, l1tSC4PFL1PuppiCorrectedEmulator, l1tSC4PFL1PuppiCorrectedEmulatorMHT,
-    l1tSC8PFL1PuppiEmulator, l1tSC8PFL1PuppiCorrectedEmulator
+    l1tSC8PFL1Puppi, l1tSC8PFL1PuppiEmulator, l1tSC8PFL1PuppiCorrectedEmulator
 )
 
 L1TPFJetsExtendedTask = cms.Task(
@@ -53,5 +56,5 @@ L1TPFJetsExtendedTask = cms.Task(
 
 L1TPFJetsEmulationTask = cms.Task(
     l1tLayer2Deregionizer, l1tSC4PFL1PuppiEmulator, l1tSC4PFL1PuppiCorrectedEmulator, l1tSC4PFL1PuppiCorrectedEmulatorMHT,
-    l1tSC8PFL1PuppiEmulator, l1tSC8PFL1PuppiCorrectedEmulator
+    l1tSC8PFL1Puppi, l1tSC8PFL1PuppiEmulator, l1tSC8PFL1PuppiCorrectedEmulator
 )
