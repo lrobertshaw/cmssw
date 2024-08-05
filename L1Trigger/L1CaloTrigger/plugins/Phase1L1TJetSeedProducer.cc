@@ -102,8 +102,6 @@ private:
   double etaLow_;
   double etaUp_;
   unsigned int nBinsPhi_;
-  double phiLow_;
-  double phiUp_;
   unsigned int jetIEtaSize_;
   unsigned int jetIPhiSize_;
   bool fatJet_;
@@ -130,8 +128,6 @@ Phase1L1TJetSeedProducer::Phase1L1TJetSeedProducer(const edm::ParameterSet& iCon
       etaLow_(iConfig.getParameter<double>("etaLow")),
       etaUp_(iConfig.getParameter<double>("etaUp")),
       nBinsPhi_(iConfig.getParameter<unsigned int>("nBinsPhi")),
-      phiLow_(iConfig.getParameter<double>("phiLow")),
-      phiUp_(iConfig.getParameter<double>("phiUp")),
       jetIEtaSize_(iConfig.getParameter<unsigned int>("jetIEtaSize")),
       jetIPhiSize_(iConfig.getParameter<unsigned int>("jetIPhiSize")),
       fatJet_(iConfig.getParameter<bool>("fatJet")),
@@ -215,6 +211,11 @@ void Phase1L1TJetSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
   // sort by pt
   l1t::PFCandidateCollection sortedSeeds;
   sortSeeds( seedsVector, sortedSeeds );
+
+  // std::cout << "--- Seeds ---" << std::endl;
+  // for ( const auto& seed : sortedSeeds ) {
+  //   std::cout << seed.pt() << " " << seed.eta() << " " << seed.phi() << std::endl;
+  // }
 
   auto seedsVectorPtr = std::make_unique<l1t::PFCandidateCollection>(sortedSeeds);
   
@@ -596,17 +597,19 @@ std::vector<std::vector<edm::Ptr<reco::Candidate>>> Phase1L1TJetSeedProducer::pr
   for (unsigned int i = 0; i < triggerPrimitives->size(); ++i) {
     reco::CandidatePtr tp(triggerPrimitives, i);
 
-    if (tp->phi() < phiRegionEdges_.front() || tp->phi() >= phiRegionEdges_.back() ||
+    if (
+      tp->phi() < phiRegionEdges_.front() || tp->phi() >= phiRegionEdges_.back() ||
         tp->eta() < etaRegionEdges_.front() || tp->eta() >= etaRegionEdges_.back())
       continue;
 
     // Which phi region does this tp belong to
     auto it_phi = phiRegionEdges_.begin();
-    it_phi = std::upper_bound(phiRegionEdges_.begin(), phiRegionEdges_.end(), tp->phi()) - 1;
-    if ( l1ct::Scales::makeGlbPhi( *(it_phi+1) ) == l1ct::Scales::makeGlbPhi( tp->phi() ) ) {
+    auto tp_phi = tp->phi();
+
+    it_phi = std::upper_bound(phiRegionEdges_.begin(), phiRegionEdges_.end(), tp_phi) - 1;
+    if ( l1ct::Scales::makeGlbPhi( *(it_phi+1) ) == l1ct::Scales::makeGlbPhi( tp_phi ) ) {
       it_phi += 1;
     }
-
     // Which eta region does this tp belong to
     auto it_eta = etaRegionEdges_.begin();
     it_eta = std::upper_bound(etaRegionEdges_.begin(), etaRegionEdges_.end(), tp->eta()) - 1;
