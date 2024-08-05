@@ -35,9 +35,9 @@ bool L1SCJetEmu::inCone(L1SCJetEmu::Particle seed, L1SCJetEmu::Particle part) co
   return ret;
 }
 
-L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const {
+L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts, const Particle seed) const {
   // Seed Cone Jet algorithm with ap_fixed types and hardware emulation
-  Particle seed = reduce(parts, op_max);    // find maximum pt particle
+  // Particle seed = reduce(parts, op_max);
 
   // Event with saturation, order of terms doesn't matter since they're all positive
   auto sumpt = [](pt_t(a), const Particle& b) { return a + b.hwPt; };    // essentially a python lambda fn
@@ -226,9 +226,9 @@ std::vector<L1SCJetEmu::Jet> L1SCJetEmu::emulateEvent(std::vector<Particle>& par
       });
     }
     if ( particlesInCone.size() > 0 ) { // Possible hack - some seeds don't have any clustered particles.  Need to understand if real effect (could be) or a bug
-     
+    
     // if (debug_){ dbgCout() << "Internal seed used!" << std::endl;}   //debug
-     jets.push_back(makeJet_HW(particlesInCone));
+     jets.push_back(makeJet_HW(particlesInCone, seed));
      //remove the clustered particles
      if(! allowDoubleCounting){       //if double couting not allowed
     //  if (debug_){ dbgCout() << "Removing candidates!" << std::endl;}   //debug
