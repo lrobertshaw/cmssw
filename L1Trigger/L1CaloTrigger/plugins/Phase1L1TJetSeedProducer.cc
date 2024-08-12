@@ -26,6 +26,7 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/common/bitonic_hybrid_sort_ref.h"
 
 #include "TH2F.h"
+#include "TCanvas.h"
 
 #include <cmath>
 
@@ -118,9 +119,8 @@ private:
 
 };
 
-Phase1L1TJetSeedProducer::Phase1L1TJetSeedProducer(const edm::ParameterSet& iConfig):  // getting configuration settings
-      inputCollectionTag_{
-          consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("inputCollectionTag"))},
+Phase1L1TJetSeedProducer::Phase1L1TJetSeedProducer(const edm::ParameterSet& iConfig)
+    : inputCollectionTag_{consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("inputCollectionTag"))},
       etaBinning_(iConfig.getParameter<std::vector<double>>("etaBinning")),
       nBinsEta_(etaBinning_.size() - 1),
       nBinsPhi_(iConfig.getParameter<unsigned int>("nBinsPhi")),
@@ -138,14 +138,31 @@ Phase1L1TJetSeedProducer::Phase1L1TJetSeedProducer(const edm::ParameterSet& iCon
       phiRegionEdges_(iConfig.getParameter<std::vector<double>>("phiRegions")),
       maxInputsPerRegion_(iConfig.getParameter<unsigned int>("maxInputsPerRegion")),
       outputCollectionName_(iConfig.getParameter<std::string>("outputCollectionName")) {
-  caloGrid_ =
-      std::make_unique<TH2F>("caloGrid", "Calorimeter grid", nBinsEta_, etaBinning_.data(), nBinsPhi_, phiLow_, phiUp_);
+
+  // Debug: Print eta bin edges and the number of bins
+  std::cout << "Eta Binning Edges: ";
+  for (const auto& edge : etaBinning_) {
+      std::cout << edge << " ";
+  }
+  std::cout << std::endl;
+  std::cout << "nBinsEta_: " << nBinsEta_ << std::endl;
+
+  caloGrid_ = std::make_unique<TH2F>("caloGrid", "Calorimeter grid", 
+                                     nBinsEta_, etaBinning_.data(), 
+                                     nBinsPhi_, phiLow_, phiUp_);
   caloGrid_->GetXaxis()->SetTitle("#eta");
   caloGrid_->GetYaxis()->SetTitle("#phi");
-  // produces<l1t::PFCandidateCollection>(outputCollectionName_).setBranchAlias(outputCollectionName_);
-  produces<l1t::PFCandidateCollection>(outputCollectionName_);
 
+  // Debug: Print the histogram bin edges to verify
+  std::cout << "Histogram X-axis bins: " << caloGrid_->GetXaxis()->GetNbins() << std::endl;
+  for (int i = 1; i <= caloGrid_->GetXaxis()->GetNbins() + 1; ++i) {
+      std::cout << caloGrid_->GetXaxis()->GetBinLowEdge(i) << " ";
+  }
+  std::cout << std::endl;
+
+  produces<l1t::PFCandidateCollection>(outputCollectionName_);
 }
+
 
 Phase1L1TJetSeedProducer::~Phase1L1TJetSeedProducer() {}
 
@@ -170,6 +187,16 @@ float Phase1L1TJetSeedProducer::getTowerEnergy(int iEta, int iPhi) const {
 }
 
 void Phase1L1TJetSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  std::cout << "nBinsEta_: " << nBinsEta_ << std::endl;
+  std::cout << "etaBinning_: ";
+  for (size_t i = 0; i < etaBinning_.size(); ++i) {
+    std::cout << etaBinning_[i] << " ";
+  }
+  std::cout << std::endl;
+  std::cout << "nBinsPhi_: " << nBinsPhi_ << std::endl;
+  std::cout << "phiLow_: " << phiLow_ << std::endl;
+  std::cout << "phiUp_: " << phiUp_ << std::endl;
+
   edm::Handle<edm::View<reco::Candidate>> inputCollectionHandle;
   iEvent.getByToken(inputCollectionTag_, inputCollectionHandle);
 
@@ -182,6 +209,7 @@ void Phase1L1TJetSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
     fillCaloGrid<>(*(caloGrid_), inputsInRegions[iInputRegion], iInputRegion);
   }
 
+//
   // int nBinsX = caloGrid_->GetNbinsX();
   // int nBinsY = caloGrid_->GetNbinsY();
   // for (int iPhi = 1; iPhi <= nBinsY; iPhi++)
@@ -193,6 +221,7 @@ void Phase1L1TJetSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
   //   }
   //   std::cout << std::endl;
   // }
+//
 
   // find the seeds
   const auto& seedsVector = findSeeds(seedPtThreshold_);  // seedPtThreshold = 5
@@ -202,6 +231,40 @@ void Phase1L1TJetSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
   sortSeeds( seedsVector, sortedSeeds );
 
   auto seedsVectorPtr = std::make_unique<l1t::PFCandidateCollection>(sortedSeeds);
+  
+  // ADDED BY ME
+  for (const auto& seed : *seedsVectorPtr) {
+    std::cout << "Seed: pt=" << seed.pt() << ", eta=" << seed.eta() << ", phi=" << seed.phi() << std::endl;
+  }
+
+  // iterate over ieta and iphi bins and get tower energy at each one
+  int nBinsX = caloGrid_->GetNbinsX(); // Number of eta bins
+  int nBinsY = caloGrid_->GetNbinsY(); // Number of phi bins
+
+  // Print column headers (phi bin centers)
+  std::cout << "Eta\\Phi";
+  for (int iPhi = 1; iPhi <= nBinsY; ++iPhi) {
+      float phiCenter = caloGrid_->GetYaxis()->GetBinCenter(iPhi);
+      std::cout << "\t" << phiCenter;
+  }
+  std::cout << std::endl;
+
+  // Loop over eta bins
+  for (int iEta = 1; iEta <= nBinsX; ++iEta) {
+      float etaCenter = caloGrid_->GetXaxis()->GetBinCenter(iEta);
+      std::cout << etaCenter; // Print eta bin center
+
+      // Loop over phi bins
+      for (int iPhi = 1; iPhi <= nBinsY; ++iPhi) {
+          // Get the bin content
+          float binContent = caloGrid_->GetBinContent(iEta, iPhi);
+          std::cout << "\t" << binContent;
+      }
+      std::cout << std::endl;
+}
+
+
+
   iEvent.put(std::move(seedsVectorPtr), outputCollectionName_ );
 
   return;
@@ -516,13 +579,10 @@ void Phase1L1TJetSeedProducer::fillCaloGrid(TH2F& caloGrid,
   for (const auto& primitiveIterator : triggerPrimitives) {
     // if ( primitiveIterator->pt() != 12.25 ) continue;
     // Get digitised (floating point with reduced precision) eta and phi
-    std::pair<unsigned, unsigned> bin_EtaPhi =
-        getCandidateBin(primitiveIterator->eta(), primitiveIterator->phi(), regionIndex);
+    std::pair<unsigned, unsigned> bin_EtaPhi = getCandidateBin(primitiveIterator->eta(), primitiveIterator->phi(), regionIndex);
     unsigned int globalBin = caloGrid.GetBin( bin_EtaPhi.second, bin_EtaPhi.first );
     caloGrid.AddBinContent(globalBin,
                  float( l1ct::pt_t(primitiveIterator->pt()) ) );
-
-
   }
 }
 

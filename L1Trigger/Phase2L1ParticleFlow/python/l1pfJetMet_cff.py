@@ -4,7 +4,7 @@ from L1Trigger.Phase2L1ParticleFlow.l1SeedConePFJetProducer_cfi import l1SeedCon
 from L1Trigger.Phase2L1ParticleFlow.l1SeedConePFJetEmulatorProducer_cfi import l1SeedConePFJetEmulatorProducer
 from L1Trigger.Phase2L1ParticleFlow.l1tDeregionizerProducer_cfi import l1tDeregionizerProducer as l1tLayer2Deregionizer, l1tDeregionizerProducerExtended as l1tLayer2DeregionizerExtended
 l1tSC4PFL1PF            = l1SeedConePFJetProducer.clone(L1PFObjects = 'l1tLayer1:PF')
-l1tSC4PFL1Puppi         = l1SeedConePFJetProducer.clone()
+l1tSC4PFL1Puppi         = l1SeedConePFJetProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi')
 l1tSC4PFL1PuppiEmulator = l1SeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi')
 l1tSC8PFL1Puppi = l1SeedConePFJetProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi',
                                                 coneSize = cms.double(0.8)

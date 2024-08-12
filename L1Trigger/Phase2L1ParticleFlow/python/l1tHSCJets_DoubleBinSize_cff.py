@@ -4,13 +4,14 @@ from L1Trigger.L1CaloTrigger.Phase1L1TJetSeedProducer_cfi import l1tPhase1JetSee
 from L1Trigger.Phase2L1ParticleFlow.l1tDeregionizerProducer_cfi import l1tDeregionizerProducer as l1tLayer2Deregionizer
 from L1Trigger.Phase2L1ParticleFlow.l1SeedConePFJetEmulatorProducer_cfi import l1SeedConePFJetEmulatorProducer
 
+newEtaBins = caloEtaSegmentation
 l1tHSC8PFL1PuppiEmuSeedProducerDoubleBinSize = l1tPhase1JetSeedProducer.clone(
     inputCollectionTag = cms.InputTag('l1tLayer2Deregionizer:Puppi'),
     jetIEtaSize = cms.uint32(9),
     jetIPhiSize = cms.uint32(9),
-    etaBinning = caloEtaSegmentation[::2],    # New array with double the eta bin width
-    nBinsPhi = cms.uint32(36),    # Half the num of phi bins
-    trimmedGrid = cms.bool(True),    # Trim the grid
+    etaBinning = newEtaBins,    # New array with double the eta bin width
+    nBinsPhi = cms.uint32(72),    # Half the num of phi bins
+    trimmedGrid = cms.bool(False),    # Trim the grid
     seedSize = cms.uint32(1),    # Standard seed size
     seedPtThreshold = cms.double(1),    # GeV
     # etaRegions = cms.vdouble( -3, -2.5, -1.5, -1.0, -0.5, 0, 0.5, 1, 1.5, 2.5, 3 ),

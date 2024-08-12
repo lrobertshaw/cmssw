@@ -255,6 +255,7 @@ _phase2_siml1emulator.add(L1TPFWideJetsPhase1Task_9x9)    # wide histojets doubl
 
 # SEEDED CONE
 from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
+_phase2_siml1emulator.add(L1TPFJetsTask)
 _phase2_siml1emulator.add(L1TPFJetsEmulationTask)    # Seeded cone jets
 
 # HISTO-SEEDED CONE
