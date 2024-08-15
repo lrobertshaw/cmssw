@@ -97,13 +97,17 @@ private:
   // histogram containing our clustered inputs
   std::unique_ptr<TH2F> caloGrid_;
 
-  std::vector<double> etaBinning_;
-  size_t nBinsEta_;
+  // std::vector<double> etaBinning_;
+  unsigned int nBinsEta_;
+  double etaLow_;
+  double etaUp_;
   unsigned int nBinsPhi_;
   double phiLow_;
   double phiUp_;
   unsigned int jetIEtaSize_;
   unsigned int jetIPhiSize_;
+  bool fatJet_;
+  int FATJET;
   bool trimmedGrid_;
   unsigned int seedSize_;
   double seedPtThreshold_;
@@ -121,13 +125,16 @@ private:
 
 Phase1L1TJetSeedProducer::Phase1L1TJetSeedProducer(const edm::ParameterSet& iConfig)
     : inputCollectionTag_{consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("inputCollectionTag"))},
-      etaBinning_(iConfig.getParameter<std::vector<double>>("etaBinning")),
-      nBinsEta_(etaBinning_.size() - 1),
+      // etaBinning_(iConfig.getParameter<std::vector<double>>("etaBinning")),
+      nBinsEta_(iConfig.getParameter<unsigned int>("nBinsEta")),
+      etaLow_(iConfig.getParameter<double>("etaLow")),
+      etaUp_(iConfig.getParameter<double>("etaUp")),
       nBinsPhi_(iConfig.getParameter<unsigned int>("nBinsPhi")),
       phiLow_(iConfig.getParameter<double>("phiLow")),
       phiUp_(iConfig.getParameter<double>("phiUp")),
       jetIEtaSize_(iConfig.getParameter<unsigned int>("jetIEtaSize")),
       jetIPhiSize_(iConfig.getParameter<unsigned int>("jetIPhiSize")),
+      fatJet_(iConfig.getParameter<bool>("fatJet")),
       trimmedGrid_(iConfig.getParameter<bool>("trimmedGrid")),
       seedSize_(iConfig.getParameter<unsigned int>("seedSize")),
       seedPtThreshold_(iConfig.getParameter<double>("seedPtThreshold")),
@@ -139,30 +146,18 @@ Phase1L1TJetSeedProducer::Phase1L1TJetSeedProducer(const edm::ParameterSet& iCon
       maxInputsPerRegion_(iConfig.getParameter<unsigned int>("maxInputsPerRegion")),
       outputCollectionName_(iConfig.getParameter<std::string>("outputCollectionName")) {
 
-  // Debug: Print eta bin edges and the number of bins
-  std::cout << "Eta Binning Edges: ";
-  for (const auto& edge : etaBinning_) {
-      std::cout << edge << " ";
-  }
-  std::cout << std::endl;
-  std::cout << "nBinsEta_: " << nBinsEta_ << std::endl;
+
+  if(fatJet_){FATJET=2;}
+  else {FATJET=1;}
 
   caloGrid_ = std::make_unique<TH2F>("caloGrid", "Calorimeter grid", 
-                                     nBinsEta_, etaBinning_.data(), 
-                                     nBinsPhi_, phiLow_, phiUp_);
+                                     nBinsEta_/FATJET, etaLow_, etaUp_,
+                                     nBinsPhi_/FATJET, phiLow_, phiUp_);
   caloGrid_->GetXaxis()->SetTitle("#eta");
   caloGrid_->GetYaxis()->SetTitle("#phi");
 
-  // Debug: Print the histogram bin edges to verify
-  std::cout << "Histogram X-axis bins: " << caloGrid_->GetXaxis()->GetNbins() << std::endl;
-  for (int i = 1; i <= caloGrid_->GetXaxis()->GetNbins() + 1; ++i) {
-      std::cout << caloGrid_->GetXaxis()->GetBinLowEdge(i) << " ";
-  }
-  std::cout << std::endl;
-
   produces<l1t::PFCandidateCollection>(outputCollectionName_);
 }
-
 
 Phase1L1TJetSeedProducer::~Phase1L1TJetSeedProducer() {}
 
@@ -187,15 +182,6 @@ float Phase1L1TJetSeedProducer::getTowerEnergy(int iEta, int iPhi) const {
 }
 
 void Phase1L1TJetSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::cout << "nBinsEta_: " << nBinsEta_ << std::endl;
-  std::cout << "etaBinning_: ";
-  for (size_t i = 0; i < etaBinning_.size(); ++i) {
-    std::cout << etaBinning_[i] << " ";
-  }
-  std::cout << std::endl;
-  std::cout << "nBinsPhi_: " << nBinsPhi_ << std::endl;
-  std::cout << "phiLow_: " << phiLow_ << std::endl;
-  std::cout << "phiUp_: " << phiUp_ << std::endl;
 
   edm::Handle<edm::View<reco::Candidate>> inputCollectionHandle;
   iEvent.getByToken(inputCollectionTag_, inputCollectionHandle);
@@ -209,7 +195,7 @@ void Phase1L1TJetSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
     fillCaloGrid<>(*(caloGrid_), inputsInRegions[iInputRegion], iInputRegion);
   }
 
-//
+
   // int nBinsX = caloGrid_->GetNbinsX();
   // int nBinsY = caloGrid_->GetNbinsY();
   // for (int iPhi = 1; iPhi <= nBinsY; iPhi++)
@@ -221,7 +207,7 @@ void Phase1L1TJetSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
   //   }
   //   std::cout << std::endl;
   // }
-//
+
 
   // find the seeds
   const auto& seedsVector = findSeeds(seedPtThreshold_);  // seedPtThreshold = 5
@@ -372,11 +358,11 @@ l1t::PFCandidateCollection Phase1L1TJetSeedProducer::findSeeds(float seedThresho
         l1t::PFCandidate p;
         reco::Candidate::PolarLorentzVector pfVector;
 
-        const float etaLSB = 1.5 / 18;
-        double etaBinCentre = -3 + (iEta-1+0.5)*etaLSB;
+        const float etaLSB = (etaUp_ - etaLow_) / (nBinsEta_/FATJET);
+        double etaBinCentre = etaLow_ + (iEta-1+0.5)*etaLSB;
 
-        const float phiLSB = 2. * M_PI / 72;
-        double phiBinCentre = -3.15 + ( iPhi-1+0.5 ) * phiLSB;
+        const float phiLSB = (phiUp_ - phiLow_) / (nBinsPhi_/FATJET);
+        double phiBinCentre = phiLow_ + ( iPhi-1+0.5 ) * phiLSB;
 
         pfVector.SetPt(centralPt);
         pfVector.SetPhi(phiBinCentre);
@@ -413,9 +399,9 @@ void Phase1L1TJetSeedProducer::sortSeeds(const l1t::PFCandidateCollection unsort
 
 
   for ( const auto& seed : unsortedSeeds ) { 
-    unsigned int etaRegion = (seed.eta()+3)/1.5;
+    unsigned int etaRegion = (seed.eta()+etaUp_)/1.5;
     unsigned int seedEtaBin = floor( ( seed.eta() + (2 - 1.0*etaRegion) * 1.5 ) / 0.0833 );
-    unsigned int seedPhiBin = floor( ( seed.phi() + M_PI ) / 0.0875 );
+    unsigned int seedPhiBin = floor( ( seed.phi() + phiUp_ ) / 0.0875 );
     unsigned int phiRegion = ( ( seedPhiBin ) % 4 ) / 2;
     seedsPerEtaPhiRegions[etaRegion][phiRegion][seedPhiBin/4].push_back(seed);
   }
@@ -597,14 +583,14 @@ std::pair<unsigned, unsigned> Phase1L1TJetSeedProducer::getCandidateBin(const fl
   l1ct::glbeta_t etaOffset = l1ct::Scales::makeGlbEta( regionLowEdges.second );
   l1ct::glbphi_t phiOffset = l1ct::Scales::makeGlbPhi( regionLowEdges.first );
 
-  int etaBin = ( glbEta - etaOffset ) / 19 + 1;
-  int phiBin = ( glbPhi - phiOffset ) / 20 + 1;
+  int etaBin = ( glbEta - etaOffset ) / (19*FATJET) + 1;
+  int phiBin = ( glbPhi - phiOffset ) / (20*FATJET) + 1;
 
   if ( regionLowEdges.second == -2.5 || regionLowEdges.second == 1.5 ) {
-    if ( etaBin >= 12 ) etaBin = 12;
+    if ( etaBin >= 12/FATJET ) etaBin = 12/FATJET;
   }
-  else if ( etaBin >= 6 ) etaBin = 6;
-  if ( phiBin >= 8 ) phiBin = 8;
+  else if ( etaBin >= 6/FATJET ) etaBin = 6/FATJET;
+  if ( phiBin >= 8/FATJET ) phiBin = 8/FATJET;
 
   std::pair<unsigned, unsigned> binOffsets = regionEtaPhiBinOffset(regionIndex);
 
@@ -614,12 +600,16 @@ std::pair<unsigned, unsigned> Phase1L1TJetSeedProducer::getCandidateBin(const fl
 void Phase1L1TJetSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputCollectionTag", edm::InputTag("l1pfCandidates", "Puppi"));
-  desc.add<std::vector<double>>("etaBinning");
+  // desc.add<std::vector<double>>("etaBinning");
+  desc.add<unsigned int>("nBinsEta", 72);
+  desc.add<double>("etaLow", -3);
+  desc.add<double>("etaUp", 3);
   desc.add<unsigned int>("nBinsPhi", 72);
   desc.add<double>("phiLow", -M_PI);
   desc.add<double>("phiUp", M_PI);
-  desc.add<unsigned int>("jetIEtaSize", 7);
-  desc.add<unsigned int>("jetIPhiSize", 7);
+  desc.add<unsigned int>("jetIEtaSize", 9);
+  desc.add<unsigned int>("jetIPhiSize", 9);
+  desc.add<bool>("fatJet", false);
   desc.add<bool>("trimmedGrid", false);
   desc.add<unsigned int>("seedSize", 1);
   desc.add<double>("seedPtThreshold", 5);
@@ -690,8 +680,8 @@ std::pair<unsigned, unsigned> Phase1L1TJetSeedProducer::regionEtaPhiBinOffset(co
   unsigned int phiRegion = regionIndex % (phiRegionEdges_.size() - 1);
   unsigned int etaRegion = (regionIndex - phiRegion) / (phiRegionEdges_.size() - 1);
 
-  float etaBinOffset = ( 3 + etaRegionEdges_.at(etaRegion) ) / 0.5 * 6;
-  float phiBinOffset = ( 3.15 + phiRegionEdges_.at(phiRegion) ) / 0.7 * 8;
+  float etaBinOffset = ( etaUp_ + etaRegionEdges_.at(etaRegion) ) / 0.5 * (6/FATJET);
+  float phiBinOffset = ( phiUp_ + phiRegionEdges_.at(phiRegion) ) / 0.7 * (8/FATJET);
   return std::pair<unsigned, unsigned>{phiBinOffset, etaBinOffset};
 }
 
