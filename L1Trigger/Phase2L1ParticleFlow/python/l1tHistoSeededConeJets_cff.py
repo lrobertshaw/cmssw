@@ -26,6 +26,22 @@ L1TPFHSC8JetsEmuTask = cms.Task(l1tLayer2Deregionizer, l1tHSC8PFL1PuppiEmuSeedPr
 """ Trimmed """
 # Define seeds and jet producer for HW histo SC jets, so running on deregionizer cands
 l1tHSC8PFL1PuppiEmuSeedProducerTrimmed = l1tPhase1JetSeedProducer.clone(
+    inputCollectionTag = cms.InputTag('l1tLayer2Deregionizer:Puppi'),
+    jetIEtaSize = cms.uint32(9),
+    jetIPhiSize = cms.uint32(9),
+    
+    nBinsEta = cms.uint32(72),
+    etaLow = cms.double(-3),
+    etaUp = cms.double(3),
+    
+    nBinsPhi = cms.uint32(72),
+    phiLow = cms.double(-3.1415926535897931),
+    phiUp = cms.double(3.1415926535897931),
+
+    fatJet = cms.bool(True),
+    seedPtThreshold = cms.double(1),    # GeV
+
+
     jetIEtaSize = cms.uint32(17),
     jetIPhiSize = cms.uint32(17),
     trimmedGrid = cms.bool(True),
