@@ -101,7 +101,8 @@ void L1SeedConePFJetProducer::produce(edm::StreamID /*unused*/,
   std::vector<l1t::PFJet> jets;
   if (HW) {
     jets = processEvent_HW(particles, seeds);
-  } else {
+  }
+  else {
     jets = processEvent_SW(particles, seeds);
   }
 
@@ -182,28 +183,45 @@ l1t::PFJet L1SeedConePFJetProducer::makeJet_SW(const std::vector<edm::Ptr<l1t::P
 
 std::vector<l1t::PFJet> L1SeedConePFJetProducer::processEvent_SW(std::vector<edm::Ptr<l1t::PFCandidate>>& work, std::vector<edm::Ptr<l1t::PFCandidate>>& seeds) const {
   // The floating point algorithm simulation
+  
   std::stable_sort(work.begin(), work.end(), [](edm::Ptr<l1t::PFCandidate> i, edm::Ptr<l1t::PFCandidate> j) {
-    return (i->pt() > j->pt());
+    return (i->pt() > j->pt());    // this sorts the candidates by pT
   });
-  std::vector<l1t::PFJet> jets;
-  jets.reserve(nJets);
-  while (!work.empty() && jets.size() < nJets) {
-    // Take the first (highest pt) candidate as a seed
-    edm::Ptr<l1t::PFCandidate> seed = work.at(0);
+  std::vector<l1t::PFJet> jets;    // make vector of jets
+  jets.reserve(nJets);    // reserve enough entries for nJets
+
+  // for(int i=0; i < seeds.size(); i++){
+  //   std::cout << seeds[i] << std::endl;
+  // }
+
+
+  while (!work.empty() && jets.size() < nJets) {    // whilst theres candidates in the array and nJets havent yet been found
+    if( useExternalSeeds && seeds.empty() ) break;
+    edm::Ptr<l1t::PFCandidate> seed = (useExternalSeeds && !seeds.empty()) ? seeds.front() : work.front();    // If use external seeds true, use external seeds, else use highest pt cand
+
     // Get the particles within a coneSize of the seed
     std::vector<edm::Ptr<l1t::PFCandidate>> particlesInCone;
     std::copy_if(
         work.begin(), work.end(), std::back_inserter(particlesInCone), [&](const edm::Ptr<l1t::PFCandidate>& part) {
           return reco::deltaR<l1t::PFCandidate, l1t::PFCandidate>(*seed, *part) <= coneSize;
         });
-    jets.push_back(makeJet_SW(particlesInCone));
-    // remove the clustered particles
-    work.erase(std::remove_if(work.begin(),
-                              work.end(),
-                              [&](const edm::Ptr<l1t::PFCandidate>& part) {
-                                return reco::deltaR<l1t::PFCandidate, l1t::PFCandidate>(*seed, *part) <= coneSize;
-                              }),
-               work.end());
+
+    if ( particlesInCone.size() > 0 ) { // Possible hack - some seeds don't have any clustered particles.  Need to understand if real effect (could be) or a bug
+      jets.push_back(makeJet_SW(particlesInCone));
+      // remove the clustered particles
+      work.erase(std::remove_if(work.begin(),
+                                work.end(),
+                                [&](const edm::Ptr<l1t::PFCandidate>& part) {
+                                  return reco::deltaR<l1t::PFCandidate, l1t::PFCandidate>(*seed, *part) <= coneSize;
+                                }),
+                work.end());
+                }
+
+    if ( useExternalSeeds ) {
+      // if (debug_) {dbgCout() << "External seed used!" << std::endl;}
+      seeds.erase(seeds.begin());
+      // if (debug_){ dbgCout() << "N seeds remaining and: " << seeds.size() << std::endl;
+      }
   }
   return jets;
 }
