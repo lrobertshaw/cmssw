@@ -183,17 +183,11 @@ l1t::PFJet L1SeedConePFJetProducer::makeJet_SW(const std::vector<edm::Ptr<l1t::P
 
 std::vector<l1t::PFJet> L1SeedConePFJetProducer::processEvent_SW(std::vector<edm::Ptr<l1t::PFCandidate>>& work, std::vector<edm::Ptr<l1t::PFCandidate>>& seeds) const {
   // The floating point algorithm simulation
-  
   std::stable_sort(work.begin(), work.end(), [](edm::Ptr<l1t::PFCandidate> i, edm::Ptr<l1t::PFCandidate> j) {
     return (i->pt() > j->pt());    // this sorts the candidates by pT
   });
   std::vector<l1t::PFJet> jets;    // make vector of jets
   jets.reserve(nJets);    // reserve enough entries for nJets
-
-  // for(int i=0; i < seeds.size(); i++){
-  //   std::cout << seeds[i] << std::endl;
-  // }
-
 
   while (!work.empty() && jets.size() < nJets) {    // whilst theres candidates in the array and nJets havent yet been found
     if( useExternalSeeds && seeds.empty() ) break;
