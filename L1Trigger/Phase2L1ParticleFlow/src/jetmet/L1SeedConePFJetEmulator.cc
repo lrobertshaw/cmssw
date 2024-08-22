@@ -37,10 +37,10 @@ bool L1SCJetEmu::inCone(L1SCJetEmu::Particle seed, L1SCJetEmu::Particle part) co
 
 L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const {
   // Seed Cone Jet algorithm with ap_fixed types and hardware emulation
-  Particle seed = reduce(parts, op_max);
+  Particle seed = reduce(parts, op_max);    // find maximum pt particle
 
   // Event with saturation, order of terms doesn't matter since they're all positive
-  auto sumpt = [](pt_t(a), const Particle& b) { return a + b.hwPt; };
+  auto sumpt = [](pt_t(a), const Particle& b) { return a + b.hwPt; };    // essentially a python lambda fn
 
   // Sum the pt
   pt_t pt = std::accumulate(parts.begin(), parts.end(), pt_t(0), sumpt);
@@ -49,10 +49,10 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const
   // pt weighted d eta
   std::vector<pt_etaphi_t> pt_deta;
   pt_deta.resize(parts.size());
-  std::transform(parts.begin(), parts.end(), pt_deta.begin(), [&seed](const Particle& part) {
+  std::transform( parts.begin(), parts.end(), pt_deta.begin(), [&seed](const Particle& part) {
     // In the firmware we calculate the per-particle pt-weighted deta
     return pt_etaphi_t(part.hwPt * detaphi_t(part.hwEta - seed.hwEta));
-  });
+  } );
   // Accumulate the pt-weighted etas. Init to 0, include seed in accumulation
   pt_etaphi_t sum_pt_eta = std::accumulate(pt_deta.begin(), pt_deta.end(), pt_etaphi_t(0));
   etaphi_t eta = seed.hwEta + etaphi_t(sum_pt_eta * inv_pt);
@@ -68,10 +68,24 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const
   pt_etaphi_t sum_pt_phi = std::accumulate(pt_dphi.begin(), pt_dphi.end(), pt_etaphi_t(0));
   etaphi_t phi = seed.hwPhi + etaphi_t(sum_pt_phi * inv_pt);
 
+  // pt weighted pz for mass
+  std::vector<pt_etaphi_t> pt_dz;
+  pt_dz.resize(parts.size());
+  pt_t half = 0.5;
+  std::transform(parts.begin(), parts.end(), pt_dz.begin(), [&seed, half](const Particle& part) {
+    return pt_etaphi_t( part.hwPt * ( 1 - (part.hwEta*part.hwEta + part.hwPhi*part.hwPhi) * half ) );
+  });
+  pt_etaphi_t sum_pt_z = std::accumulate(pt_dz.begin(), pt_dz.end(), pt_etaphi_t(0));
+  //etaphi_t z = MAYBE THE MISSING LINE CAUSING ERRORS?
+
+  pt_t mass = (pt*pt) - (sum_pt_eta*sum_pt_eta) - (sum_pt_phi*sum_pt_phi) - (sum_pt_z*sum_pt_z);
+  // MAYBE IT SHOULD BE: pt_t mass = pt**2 - eta**2 - phi**2 - z**2;
+
   Jet jet;
   jet.hwPt = pt;
   jet.hwEta = eta;
   jet.hwPhi = phi;
+  jet.hwMass = mass;
   jet.constituents = parts;
 
   if (debug_) {
