@@ -246,9 +246,7 @@ L1SeedConePFJetProducer::convertEDMToHW(std::vector<edm::Ptr<l1t::PFCandidate>>&
   return std::make_pair(hwParticles, candidateMap);
 }
 
-std::vector<l1t::PFJet> L1SeedConePFJetProducer::convertHWToEDM(
-    std::vector<L1SCJetEmu::Jet> hwJets,
-    std::unordered_map<const l1t::PFCandidate*, edm::Ptr<l1t::PFCandidate>> constituentMap) const {
+std::vector<l1t::PFJet> L1SeedConePFJetProducer::convertHWToEDM( std::vector<L1SCJetEmu::Jet> hwJets, std::unordered_map<const l1t::PFCandidate*, edm::Ptr<l1t::PFCandidate>> constituentMap) const {
   std::vector<l1t::PFJet> edmJets;
   std::for_each(hwJets.begin(), hwJets.end(), [&](L1SCJetEmu::Jet jet) {
     if (doCorrections) {
@@ -259,7 +257,7 @@ std::vector<l1t::PFJet> L1SeedConePFJetProducer::convertHWToEDM(
     l1t::PFJet edmJet(l1gt::Scales::floatPt(gtJet.v3.pt),
                       l1gt::Scales::floatEta(gtJet.v3.eta),
                       l1gt::Scales::floatPhi(gtJet.v3.phi),
-                      5.0,
+                      l1ct::Scales::floatPt(jet.hwMass),    // note because mass not passed to
                       gtJet.v3.pt.V,
                       gtJet.v3.eta.V,
                       gtJet.v3.phi.V);

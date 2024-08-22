@@ -26,6 +26,7 @@ public:
   class Jet : public l1ct::Jet {
   public:
     std::vector<l1ct::PuppiObjEmu> constituents;
+    l1ct::pt_t hwMass;    // added mass
   };
 
   L1SCJetEmu(bool debug, float coneSize, unsigned nJets);
