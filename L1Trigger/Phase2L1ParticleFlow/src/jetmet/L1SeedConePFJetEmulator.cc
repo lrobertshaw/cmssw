@@ -66,20 +66,9 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const
   });
   // Accumulate the pt-weighted phis. Init to 0, include seed in accumulation
   pt_etaphi_t sum_pt_phi = std::accumulate(pt_dphi.begin(), pt_dphi.end(), pt_etaphi_t(0));
-  etaphi_t phi = seed.hwPhi + etaphi_t(sum_pt_phi * inv_pt);
+  etaphi_t phi = seed.hwPhi + etaphi_t(sum_pt_phi * inv_pt);    // shift the seed by pt weighted sum_pt_phi
 
-  // pt weighted pz for mass
-  std::vector<pt_etaphi_t> pt_dz;
-  pt_dz.resize(parts.size());
-  pt_t half = 0.5;
-  std::transform(parts.begin(), parts.end(), pt_dz.begin(), [&seed, half](const Particle& part) {
-    return pt_etaphi_t( part.hwPt * ( 1 - (part.hwEta*part.hwEta + part.hwPhi*part.hwPhi) * half ) );
-  });
-  pt_etaphi_t sum_pt_z = std::accumulate(pt_dz.begin(), pt_dz.end(), pt_etaphi_t(0));
-  //etaphi_t z = MAYBE THE MISSING LINE CAUSING ERRORS?
-
-  pt_t mass = (pt*pt) - (sum_pt_eta*sum_pt_eta) - (sum_pt_phi*sum_pt_phi) - (sum_pt_z*sum_pt_z);
-  // MAYBE IT SHOULD BE: pt_t mass = pt**2 - eta**2 - phi**2 - z**2;
+  pt_t mass = L1SCJetEmu::jetMass_HW(parts);
 
   Jet jet;
   jet.hwPt = pt;
@@ -102,6 +91,50 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const
 
   return jet;
 }
+
+l1ct::pt_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts) const {    // need ampersand?
+
+  std::vector<pt_t> energy;
+  energy.resize(parts.size());
+  std::transform(parts.begin(), parts.end(), energy.begin(), [](const Particle& part) {
+    // In the firmware we calculate the per-particle pt-weighted dphi
+    return pt_t( part.hwPt * (pt_t)cosh(l1ct::Scales::floatEta(part.hwEta)) );
+  });
+  // Accumulate the pt-weighted phis. Init to 0, include seed in accumulation
+  pt_t sum_energy = std::accumulate(energy.begin(), energy.end(), pt_t(0));
+
+  std::vector<pt_t> px;
+  px.resize(parts.size());
+  std::transform(parts.begin(), parts.end(), energy.begin(), [](const Particle& part) {
+    // In the firmware we calculate the per-particle pt-weighted dphi
+    return pt_t( part.hwPt * (pt_t)cos(l1ct::Scales::floatPhi(part.hwPhi)) );
+  });
+  // Accumulate the pt-weighted phis. Init to 0, include seed in accumulation
+  pt_t sum_px = std::accumulate(px.begin(), px.end(), pt_t(0));
+
+  std::vector<pt_t> py;
+  py.resize(parts.size());
+  std::transform(parts.begin(), parts.end(), py.begin(), [](const Particle& part) {
+    // In the firmware we calculate the per-particle pt-weighted dphi
+    return pt_t( part.hwPt * (pt_t)sin(l1ct::Scales::floatPhi(part.hwPhi)) );
+  });
+  // Accumulate the pt-weighted phis. Init to 0, include seed in accumulation
+  pt_t sum_py = std::accumulate(py.begin(), py.end(), pt_t(0));
+
+  std::vector<pt_t> pz;
+  pz.resize(parts.size());
+  std::transform(parts.begin(), parts.end(), pz.begin(), [](const Particle& part) {
+    // In the firmware we calculate the per-particle pt-weighted dphi
+    return pt_t( part.hwPt * (pt_t)sinh(l1ct::Scales::floatEta(part.hwEta)) );
+  });
+  // Accumulate the pt-weighted phis. Init to 0, include seed in accumulation
+  pt_t sum_pz = std::accumulate(pz.begin(), pz.end(), pt_t(0));
+
+  pt_t mass2 = sum_energy * sum_energy - sum_px * sum_px - sum_py * sum_py - sum_pz * sum_pz;
+
+  return mass2;
+}
+
 
 std::vector<L1SCJetEmu::Jet> L1SCJetEmu::emulateEvent(std::vector<Particle>& parts, std::vector<Particle>& seeds, bool useExternalSeeds, bool allowDoubleCounting) const {
   // The fixed point algorithm emulation

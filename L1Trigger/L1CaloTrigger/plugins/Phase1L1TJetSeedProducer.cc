@@ -218,39 +218,6 @@ void Phase1L1TJetSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
   auto seedsVectorPtr = std::make_unique<l1t::PFCandidateCollection>(sortedSeeds);
   
-  // // ADDED BY ME
-  // for (const auto& seed : *seedsVectorPtr) {
-  //   std::cout << "Seed: pt=" << seed.pt() << ", eta=" << seed.eta() << ", phi=" << seed.phi() << std::endl;
-  // }
-
-  // // iterate over ieta and iphi bins and get tower energy at each one
-  // int nBinsX = caloGrid_->GetNbinsX(); // Number of eta bins
-  // int nBinsY = caloGrid_->GetNbinsY(); // Number of phi bins
-
-//   // Print column headers (phi bin centers)
-//   std::cout << "Eta\\Phi";
-//   for (int iPhi = 0; iPhi <= nBinsY; ++iPhi) {
-//       float phiCenter = caloGrid_->GetYaxis()->GetBinCenter(iPhi);
-//       std::cout << "\t" << phiCenter;
-//   }
-//   std::cout << std::endl;
-
-//   // Loop over eta bins
-//   for (int iEta = 0; iEta <= nBinsX; ++iEta) {
-//       float etaCenter = caloGrid_->GetXaxis()->GetBinCenter(iEta);
-//       std::cout << etaCenter; // Print eta bin center
-
-//       // Loop over phi bins
-//       for (int iPhi = 0; iPhi <= nBinsY; ++iPhi) {
-//           // Get the bin content
-//           float binContent = caloGrid_->GetBinContent(iEta, iPhi);
-//           std::cout << "\t" << binContent;
-//       }
-//       std::cout << std::endl;
-// }
-
-
-
   iEvent.put(std::move(seedsVectorPtr), outputCollectionName_ );
 
   return;
