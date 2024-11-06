@@ -94,45 +94,45 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const
 
 l1ct::pt_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts) const {    // need ampersand?
 
-  std::vector<pt_t> energy;
+  std::vector<float> energy;
   energy.resize(parts.size());
   std::transform(parts.begin(), parts.end(), energy.begin(), [](const Particle& part) {
     // In the firmware we calculate the per-particle pt-weighted dphi
-    return pt_t( part.hwPt * (pt_t)cosh(l1ct::Scales::floatEta(part.hwEta)) );
+    return float( l1ct::Scales::floatPt(part.hwPt) * cosh(l1ct::Scales::floatEta(part.hwEta)) );
   });
   // Accumulate the pt-weighted phis. Init to 0, include seed in accumulation
-  pt_t sum_energy = std::accumulate(energy.begin(), energy.end(), pt_t(0));
+  float sum_energy = std::accumulate(energy.begin(), energy.end(), float(0));
 
-  std::vector<pt_t> px;
+  std::vector<float> px;
   px.resize(parts.size());
-  std::transform(parts.begin(), parts.end(), energy.begin(), [](const Particle& part) {
+  std::transform(parts.begin(), parts.end(), px.begin(), [](const Particle& part) {
     // In the firmware we calculate the per-particle pt-weighted dphi
-    return pt_t( part.hwPt * (pt_t)cos(l1ct::Scales::floatPhi(part.hwPhi)) );
+    return float( l1ct::Scales::floatPt(part.hwPt) * cos(l1ct::Scales::floatPhi(part.hwPhi)) );
   });
   // Accumulate the pt-weighted phis. Init to 0, include seed in accumulation
-  pt_t sum_px = std::accumulate(px.begin(), px.end(), pt_t(0));
+  float sum_px = std::accumulate(px.begin(), px.end(), float(0));
 
-  std::vector<pt_t> py;
+  std::vector<float> py;
   py.resize(parts.size());
   std::transform(parts.begin(), parts.end(), py.begin(), [](const Particle& part) {
     // In the firmware we calculate the per-particle pt-weighted dphi
-    return pt_t( part.hwPt * (pt_t)sin(l1ct::Scales::floatPhi(part.hwPhi)) );
+    return float( l1ct::Scales::floatPt(part.hwPt) * sin(l1ct::Scales::floatPhi(part.hwPhi)) );
   });
   // Accumulate the pt-weighted phis. Init to 0, include seed in accumulation
-  pt_t sum_py = std::accumulate(py.begin(), py.end(), pt_t(0));
+  float sum_py = std::accumulate(py.begin(), py.end(), float(0));
 
-  std::vector<pt_t> pz;
+  std::vector<float> pz;
   pz.resize(parts.size());
   std::transform(parts.begin(), parts.end(), pz.begin(), [](const Particle& part) {
     // In the firmware we calculate the per-particle pt-weighted dphi
-    return pt_t( part.hwPt * (pt_t)sinh(l1ct::Scales::floatEta(part.hwEta)) );
+    return float( l1ct::Scales::floatPt(part.hwPt) * sinh(l1ct::Scales::floatEta(part.hwEta)) );
   });
   // Accumulate the pt-weighted phis. Init to 0, include seed in accumulation
-  pt_t sum_pz = std::accumulate(pz.begin(), pz.end(), pt_t(0));
+  float sum_pz = std::accumulate(pz.begin(), pz.end(), float(0));
 
-  pt_t mass2 = sum_energy * sum_energy - sum_px * sum_px - sum_py * sum_py - sum_pz * sum_pz;
+  float mass = std::pow(sum_energy * sum_energy - sum_px * sum_px - sum_py * sum_py - sum_pz * sum_pz, 0.5);
 
-  return mass2;
+  return (pt_t)mass;
 }
 
 
