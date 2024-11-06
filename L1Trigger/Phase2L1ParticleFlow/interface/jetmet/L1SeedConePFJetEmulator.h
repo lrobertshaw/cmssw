@@ -146,7 +146,7 @@ private:
   static detaphi_t deltaPhi(Particle a, Particle b);
   bool inCone(Particle seed, Particle part) const;
   Jet makeJet_HW(const std::vector<Particle>& parts) const;
-
+  pt_t jetMass_HW(const std::vector<Particle>& parts) const;
 };  // class L1SCJetEmu
 
 #endif
