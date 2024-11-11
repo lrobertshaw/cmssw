@@ -21,12 +21,15 @@ public:
   typedef ap_int<13> detaphi_t;          // Type for deta & dphi
   typedef ap_fixed<18, 23> detaphi2_t;   // Type for deta^2 & dphi^2
   typedef ap_fixed<22, 22> pt_etaphi_t;  // Type for product of pt with deta & dphi
+  typedef ap_fixed<8, 6, AP_TRN, AP_SAT> cosh_t; // stores values between 1 and 1.5
+  typedef ap_fixed<8, 6, AP_TRN, AP_SAT> cos_t;  // stores values between 0 and 0.5
+  // typedef ap_fixed<32, 24, AP_TRN, AP_SAT> mass_t;
   typedef l1ct::PuppiObjEmu Particle;
 
   class Jet : public l1ct::Jet {
   public:
     std::vector<l1ct::PuppiObjEmu> constituents;
-    l1ct::pt_t hwMass;    // added mass
+    l1ct::pt2_t hwMass;    // added mass
   };
 
   L1SCJetEmu(bool debug, float coneSize, unsigned nJets);
@@ -146,7 +149,7 @@ private:
   static detaphi_t deltaPhi(Particle a, Particle b);
   bool inCone(Particle seed, Particle part) const;
   Jet makeJet_HW(const std::vector<Particle>& parts) const;
-  pt_t jetMass_HW(const std::vector<Particle>& parts) const;
+  float jetMass_HW(const std::vector<Particle>& parts, const Particle& seed) const;
 };  // class L1SCJetEmu
 
 #endif
