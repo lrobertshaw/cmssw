@@ -68,7 +68,7 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const
   pt_etaphi_t sum_pt_phi = std::accumulate(pt_dphi.begin(), pt_dphi.end(), pt_etaphi_t(0));
   etaphi_t phi = seed.hwPhi + etaphi_t(sum_pt_phi * inv_pt);    // shift the seed by pt weighted sum_pt_phi
 
-  pt_t mass = L1SCJetEmu::jetMass_HW(parts);
+  float mass = L1SCJetEmu::jetMass_HW(parts, seed);
 
   Jet jet;
   jet.hwPt = pt;
@@ -92,47 +92,67 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const
   return jet;
 }
 
-l1ct::pt_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts) const {    // need ampersand?
+float L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts, const Particle& seed) const {    // need ampersand?
 
   std::vector<float> energy;
   energy.resize(parts.size());
-  std::transform(parts.begin(), parts.end(), energy.begin(), [](const Particle& part) {
+  std::transform(parts.begin(), parts.end(), energy.begin(), [&seed](const Particle& part) {
+    l1ct::eta_t dEta = l1ct::eta_t(part.hwEta - seed.hwEta);
     // In the firmware we calculate the per-particle pt-weighted dphi
-    return float( l1ct::Scales::floatPt(part.hwPt) * cosh(l1ct::Scales::floatEta(part.hwEta)) );
+    return float( (float)part.hwPt * (float)cosh(l1ct::Scales::floatEta(dEta)) );
   });
   // Accumulate the pt-weighted phis. Init to 0, include seed in accumulation
   float sum_energy = std::accumulate(energy.begin(), energy.end(), float(0));
+  std::cout << "sum_energy: " << sum_energy << std::endl;
+  float sum_energy2 = sum_energy * sum_energy;
+  std::cout << "sum_energy2: " << sum_energy2 << std::endl;
 
   std::vector<float> px;
   px.resize(parts.size());
-  std::transform(parts.begin(), parts.end(), px.begin(), [](const Particle& part) {
+  std::transform(parts.begin(), parts.end(), px.begin(), [&seed](const Particle& part) {
+    l1ct::phi_t dPhi = l1ct::phi_t(deltaPhi(part, seed));
     // In the firmware we calculate the per-particle pt-weighted dphi
-    return float( l1ct::Scales::floatPt(part.hwPt) * cos(l1ct::Scales::floatPhi(part.hwPhi)) );
+    return float( (float)part.hwPt * (float)cos(l1ct::Scales::floatPhi(dPhi)) );
   });
   // Accumulate the pt-weighted phis. Init to 0, include seed in accumulation
   float sum_px = std::accumulate(px.begin(), px.end(), float(0));
+  std::cout << "sum_px: " << sum_px << std::endl;
+  float sum_px2 = sum_px * sum_px;
+  std::cout << "sum_px2: " << sum_px2 << std::endl;
 
   std::vector<float> py;
   py.resize(parts.size());
-  std::transform(parts.begin(), parts.end(), py.begin(), [](const Particle& part) {
+  std::transform(parts.begin(), parts.end(), py.begin(), [&seed](const Particle& part) {
+    l1ct::phi_t dPhi = l1ct::phi_t(deltaPhi(part, seed));
     // In the firmware we calculate the per-particle pt-weighted dphi
-    return float( l1ct::Scales::floatPt(part.hwPt) * sin(l1ct::Scales::floatPhi(part.hwPhi)) );
+    return float( (float)part.hwPt * (float)sin(l1ct::Scales::floatPhi(dPhi)) );
   });
   // Accumulate the pt-weighted phis. Init to 0, include seed in accumulation
   float sum_py = std::accumulate(py.begin(), py.end(), float(0));
+  std::cout << "sum_py: " << sum_py << std::endl;
+  float sum_py2 = sum_py * sum_py;
+  std::cout << "sum_py2: " << sum_py2 << std::endl;
 
   std::vector<float> pz;
   pz.resize(parts.size());
-  std::transform(parts.begin(), parts.end(), pz.begin(), [](const Particle& part) {
+  std::transform(parts.begin(), parts.end(), pz.begin(), [&seed](const Particle& part) {
+    l1ct::eta_t dEta = l1ct::eta_t(part.hwEta - seed.hwEta);
     // In the firmware we calculate the per-particle pt-weighted dphi
-    return float( l1ct::Scales::floatPt(part.hwPt) * sinh(l1ct::Scales::floatEta(part.hwEta)) );
+    return float( (float)part.hwPt * (float)sinh(l1ct::Scales::floatEta(dEta)) );
   });
   // Accumulate the pt-weighted phis. Init to 0, include seed in accumulation
   float sum_pz = std::accumulate(pz.begin(), pz.end(), float(0));
+  std::cout << "sum_pz: " << sum_pz << std::endl;
+  float sum_pz2 = sum_pz * sum_pz;
+  std::cout << "sum_pz2: " << sum_pz2 << std::endl;
 
-  float mass = std::pow(sum_energy * sum_energy - sum_px * sum_px - sum_py * sum_py - sum_pz * sum_pz, 0.5);
+  float mass2 = sum_energy2 - sum_px2 - sum_py2 - sum_pz2;
+  std::cout << "mass2: " << mass2 << std::endl;
+  float mass = std::pow(mass2, 0.5);
+  std::cout << "mass: " << mass << std::endl;
+  std::cout << " " << std::endl;
 
-  return (pt_t)mass;
+  return mass;
 }
 
 

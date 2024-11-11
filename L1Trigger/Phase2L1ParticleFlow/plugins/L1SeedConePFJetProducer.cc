@@ -285,7 +285,7 @@ std::vector<l1t::PFJet> L1SeedConePFJetProducer::convertHWToEDM( std::vector<L1S
     l1t::PFJet edmJet(l1gt::Scales::floatPt(gtJet.v3.pt),
                       l1gt::Scales::floatEta(gtJet.v3.eta),
                       l1gt::Scales::floatPhi(gtJet.v3.phi),
-                      l1ct::Scales::floatPt(jet.hwMass),    // note because mass not passed to
+                      jet.hwMass,    // note because mass not passed to
                       gtJet.v3.pt.V,
                       gtJet.v3.eta.V,
                       gtJet.v3.phi.V);
