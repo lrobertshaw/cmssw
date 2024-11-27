@@ -41,12 +41,8 @@ l1tHSC8PFL1PuppiEmuSeedProducerTrimmed = l1tPhase1JetSeedProducer.clone(
     fatJet = cms.bool(True),
     seedPtThreshold = cms.double(1),    # GeV
 
-
-    jetIEtaSize = cms.uint32(17),
-    jetIPhiSize = cms.uint32(17),
     trimmedGrid = cms.bool(True),
     seedSize = cms.uint32(1),
-    inputCollectionTag = cms.InputTag('l1tLayer2Deregionizer:Puppi'),
     outputCollectionName = cms.string("WIDEHSCEMUSEEDSTRIMMED")
     )
 # Defined jet producer
