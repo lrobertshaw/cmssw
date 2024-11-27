@@ -68,7 +68,11 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const
   pt_etaphi_t sum_pt_phi = std::accumulate(pt_dphi.begin(), pt_dphi.end(), pt_etaphi_t(0));
   etaphi_t phi = seed.hwPhi + etaphi_t(sum_pt_phi * inv_pt);    // shift the seed by pt weighted sum_pt_phi
 
-  mass_t mass = L1SCJetEmu::jetMass_HW(parts, seed);
+  std::vector<Particle> truncated;
+  std::copy(parts.begin(), parts.end(), back_inserter(truncated));
+  std::sort(truncated.begin(), truncated.end(), [](const Particle& a, const Particle& b) {return a.hwPt > b.hwPt;});    // sort by pt by jet mass fn as in firmware
+  truncated.resize(NCONSTITS);    // truncate to 4 particles
+  mass_t mass = L1SCJetEmu::jetMass_HW( truncated, seed );
 
   Jet jet;
   jet.hwPt = pt;
@@ -94,6 +98,7 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const
 
 L1SCJetEmu::mass_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts, const Particle& seed) const {    // need ampersand?
 
+  // INSTANTIATE LUTS
   static constexpr int N = 185;
   static eventrig_t cosh_lut[N];
   static eventrig_t cos_lut[N];
@@ -141,7 +146,8 @@ L1SCJetEmu::mass_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts, co
   });
   npt_t sum_pz = std::accumulate(pz.begin(), pz.end(), npt_t(0));
 
-  mass_t mass = std::pow( (sum_energy * sum_energy) - (sum_px * sum_px) - (sum_py * sum_py) - (sum_pz * sum_pz), 0.5 );
+  mass2_t mass2 = (sum_energy * sum_energy) - (sum_px * sum_px) - (sum_py * sum_py) - (sum_pz * sum_pz);
+  mass_t mass = std::pow( mass2, 0.5 );
   
   return mass;
 }

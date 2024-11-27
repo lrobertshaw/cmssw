@@ -1,6 +1,8 @@
 #ifndef L1Trigger_Phase2L1ParticleFlow_L1SeedConePFJetEmulator_h
 #define L1Trigger_Phase2L1ParticleFlow_L1SeedConePFJetEmulator_h
 
+#define NCONSTITS 32
+
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 #include "DataFormats/L1TParticleFlow/interface/jets.h"
 
@@ -24,10 +26,12 @@ public:
 
   typedef ap_ufixed<13, 1, AP_TRN, AP_SAT> eventrig_t; // stores values between 0 and 2, - 0 bit for sign, - 1 bit for integer, leaves 12 for frac
   typedef ap_fixed<13, 1, AP_TRN, AP_SAT> oddtrig_t; // stores values between -1 and 1, 13 - 1 bit for sign, - 0 bits for integer, leaves 12 for frac
-  typedef ap_ufixed<12, 10, AP_TRN, AP_SAT> mass_t; // stores values up to ~1 TeV, 18 bits - 0 for sign, - 10 for integer, leaves 8 for fractional
+  
+  typedef ap_ufixed<12, 10, AP_TRN, AP_SAT> mass_t; // stores values up to ~1 TeV, 18 bits - 0 for sign, - 10 for integer, 14 total bits improves performance
+  typedef ap_ufixed<24, 20, AP_TRN, AP_SAT> mass2_t;
 
-  typedef ap_ufixed<20, 12, AP_TRN, AP_SAT> ppt_t; // stores values between -1 and 1
-  typedef ap_fixed<22, 14, AP_TRN, AP_SAT> npt_t; // stores values between -1 and 1
+  typedef ap_ufixed<20, 12, AP_TRN, AP_SAT> ppt_t; // stores values between -1 and 1 
+  typedef ap_fixed<22, 14, AP_TRN, AP_SAT> npt_t; // stores values between -1 and 1        JUST REDUCED BY 2
 
   typedef l1ct::PuppiObjEmu Particle;
 
