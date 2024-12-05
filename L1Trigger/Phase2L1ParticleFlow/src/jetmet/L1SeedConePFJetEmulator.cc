@@ -68,18 +68,28 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const
   pt_etaphi_t sum_pt_phi = std::accumulate(pt_dphi.begin(), pt_dphi.end(), pt_etaphi_t(0));
   etaphi_t phi = seed.hwPhi + etaphi_t(sum_pt_phi * inv_pt);    // shift the seed by pt weighted sum_pt_phi
 
-  std::vector<Particle> truncated;
-  std::copy(parts.begin(), parts.end(), back_inserter(truncated));
-  std::sort(truncated.begin(), truncated.end(), [](const Particle& a, const Particle& b) {return a.hwPt > b.hwPt;});    // sort by pt by jet mass fn as in firmware
-  truncated.resize(NCONSTITS);    // truncate to 4 particles
-  mass_t mass = L1SCJetEmu::jetMass_HW( truncated, seed );
+  std::vector<Particle> sortedParts = parts;    // instantiate a vector to store sorted parts
+  std::sort(sortedParts.begin(), sortedParts.end(), [](const Particle& a, const Particle& b) {return a.hwPt > b.hwPt;});    // sort by pt by jet mass fn as in firmware
+  std::vector<Particle> truncated;    // instantiate vector to store truncated, sorted parts
+  truncated.resize(NCONSTITS);
+  for ( unsigned iConst=0; iConst<NCONSTITS; ++iConst ) {    // iterate over NCONSTITS (or truncated.size())
+    if( iConst < sortedParts.size() ){    // if iConst is less than the number of constituents in the jet then store the constituent
+      truncated[iConst].hwEta = static_cast<detaphi_t>( sortedParts.at(iConst).hwEta - seed.hwEta );
+      truncated[iConst].hwPhi = static_cast<detaphi_t>( deltaPhi(sortedParts.at(iConst), seed) );
+      truncated[iConst].hwPt = sortedParts.at(iConst).hwPt;
+    } else {    // if iConst is greater than the number of constituents in the jet then store an empty constituent (pt = 0)
+      truncated[iConst].clear();
+    }
+    // std::cout << "truncated[" << iConst << "]: " << truncated[iConst].hwPt << ", " << truncated[iConst].hwEta << ", " << truncated[iConst].hwPhi << std::endl;
+  }
+  mass_t mass = L1SCJetEmu::jetMass_HW( truncated );
 
   Jet jet;
   jet.hwPt = pt;
   jet.hwEta = eta;
   jet.hwPhi = phi;
   jet.hwMass = mass;
-  jet.constituents = parts;
+  jet.constituents = truncated;
 
   if (debug_) {
     std::for_each(pt_dphi.begin(), pt_dphi.end(), [](pt_etaphi_t& x) { dbgCout() << "pt_dphi: " << x << std::endl; });
@@ -96,7 +106,10 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const
   return jet;
 }
 
-L1SCJetEmu::mass_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts, const Particle& seed) const {    // need ampersand?
+L1SCJetEmu::mass_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts) const {    // need ampersand?
+  // for(auto part : parts){
+  //   std::cout << part.hwPt << ", " << part.hwEta << ", " << part.hwPhi << std::endl;
+  // }
 
   // INSTANTIATE LUTS
   static constexpr int N = 185;
@@ -105,7 +118,7 @@ L1SCJetEmu::mass_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts, co
   static oddtrig_t sin_lut[N];
   static oddtrig_t sinh_lut[N];
   for (unsigned hwEtaPhi = 0; hwEtaPhi < N; hwEtaPhi++) {
-    float x = l1ct::Scales::floatEta((etaphi_t)hwEtaPhi);    // for each step in hardware units, convert
+    float x = l1ct::  Scales::floatEta((etaphi_t)hwEtaPhi);    // for each step in hardware units, convert
     cosh_lut[hwEtaPhi] = cosh(x); // Store cosh(hwEta) in hardware units
     cos_lut[hwEtaPhi] = cos(x);   // Store cos(hwEta) in hardware units
     sin_lut[hwEtaPhi] = sin(x);   // Store sin(hwEta) in hardware units
@@ -114,41 +127,48 @@ L1SCJetEmu::mass_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts, co
 
   std::vector<ppt_t> energy;
   energy.resize(parts.size());
-  std::transform(parts.begin(), parts.end(), energy.begin(), [&seed](const Particle& part) {
-    detaphi_t etaIdx = part.hwEta - seed.hwEta;
-    return ppt_t( part.hwPt * cosh_lut[std::abs(etaIdx)] );
+  std::transform(parts.begin(), parts.end(), energy.begin(), [](const Particle& part) {
+    // ppt_t e = ppt_t( part.hwPt * cosh_lut[std::abs(part.hwEta)] );
+    // std::cout << "energy: " << e << std::endl;
+    return ppt_t( part.hwPt * cosh_lut[std::abs(part.hwEta)] );
   });
   ppt_t sum_energy = std::accumulate(energy.begin(), energy.end(), ppt_t(0));
+  // std::cout << "sum_energy: " << sum_energy << std::endl;
 
   std::vector<ppt_t> px;
   px.resize(parts.size());
-  std::transform(parts.begin(), parts.end(), px.begin(), [&seed](const Particle& part) {
-    detaphi_t phiIdx = deltaPhi(part, seed);
-    return ppt_t( part.hwPt * cos_lut[std::abs(phiIdx)] );
+  std::transform(parts.begin(), parts.end(), px.begin(), [](const Particle& part) {
+    // ppt_t pxx = ppt_t( part.hwPt * cos_lut[std::abs(part.hwPhi)] );
+    // std::cout << "pxx: " << pxx << std::endl;
+    return ppt_t( part.hwPt * cos_lut[std::abs(part.hwPhi)] );
   });
   ppt_t sum_px = std::accumulate(px.begin(), px.end(), ppt_t(0));
+  // std::cout << "sum_px: " << sum_px << std::endl;
 
   std::vector<npt_t> py;
   py.resize(parts.size());
-  std::transform(parts.begin(), parts.end(), py.begin(), [&seed](const Particle& part) {
-    detaphi_t phiIdx = deltaPhi(part, seed);
-    int sign = (phiIdx >= 0) ? 1 : -1;
-    return npt_t( part.hwPt * sin_lut[std::abs(phiIdx)] * sign );
+  std::transform(parts.begin(), parts.end(), py.begin(), [](const Particle& part) {
+    // npt_t pyy = npt_t( part.hwPt * sin_lut[std::abs(part.hwPhi)] * ((part.hwPhi >= 0) ? 1 : -1) );
+    // std::cout << "pyy: " << pyy << std::endl;
+    return npt_t( part.hwPt * sin_lut[std::abs(part.hwPhi)] * ((part.hwPhi >= 0) ? 1 : -1) );
   });
   npt_t sum_py = std::accumulate(py.begin(), py.end(), npt_t(0));
+  // std::cout << "sum_py: " << sum_py << std::endl;
 
   std::vector<npt_t> pz;
   pz.resize(parts.size());
-  std::transform(parts.begin(), parts.end(), pz.begin(), [&seed](const Particle& part) {
-    detaphi_t etaIdx = part.hwEta - seed.hwEta;
-    int sign = (etaIdx >= 0) ? 1 : -1;
-    return npt_t( part.hwPt * sinh_lut[std::abs(etaIdx)] * sign );
+  std::transform(parts.begin(), parts.end(), pz.begin(), [](const Particle& part) {
+    // npt_t pzz = npt_t( part.hwPt * sinh_lut[std::abs(part.hwEta)] * ((part.hwEta >= 0) ? 1 : -1) );
+    // std::cout << "pzz: " << pzz << std::endl;
+    return npt_t( part.hwPt * sinh_lut[std::abs(part.hwEta)] * ((part.hwEta >= 0) ? 1 : -1) );
   });
   npt_t sum_pz = std::accumulate(pz.begin(), pz.end(), npt_t(0));
+  // std::cout << "sum_pz: " << sum_pz << std::endl;
 
   mass2_t mass2 = (sum_energy * sum_energy) - (sum_px * sum_px) - (sum_py * sum_py) - (sum_pz * sum_pz);
+  // std::cout << "mass2: " << mass2 << std::endl;
   mass_t mass = std::pow( mass2, 0.5 );
-  
+  // std::cout << "mass: " << mass << std::endl;
   return mass;
 }
 
