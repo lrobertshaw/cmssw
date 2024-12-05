@@ -28,7 +28,7 @@ public:
   typedef ap_fixed<13, 1, AP_TRN, AP_SAT> oddtrig_t; // stores values between -1 and 1, 13 - 1 bit for sign, - 0 bits for integer, leaves 12 for frac
   
   typedef ap_ufixed<12, 10, AP_TRN, AP_SAT> mass_t; // stores values up to ~1 TeV, 18 bits - 0 for sign, - 10 for integer, 14 total bits improves performance
-  typedef ap_ufixed<24, 20, AP_TRN, AP_SAT> mass2_t;
+  typedef ap_ufixed<24, 20> mass2_t;
 
   typedef ap_ufixed<20, 12, AP_TRN, AP_SAT> ppt_t; // stores values between -1 and 1 
   typedef ap_fixed<22, 14, AP_TRN, AP_SAT> npt_t; // stores values between -1 and 1        JUST REDUCED BY 2
@@ -158,7 +158,7 @@ private:
   static detaphi_t deltaPhi(Particle a, Particle b);
   bool inCone(Particle seed, Particle part) const;
   Jet makeJet_HW(const std::vector<Particle>& parts) const;
-  mass_t jetMass_HW(const std::vector<Particle>& parts, const Particle& seed) const;
+  mass_t jetMass_HW(const std::vector<Particle>& parts) const;
 };  // class L1SCJetEmu
 
 #endif
