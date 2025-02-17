@@ -4,34 +4,15 @@
 // Class:      Phase2L1TJetSeedReductionProducer
 //
 /**\class Phase2L1TJetSeedReductionProducer Phase2L1TJetSeedReductionProducer.cc L1Trigger/L1CaloTrigger/plugins/Phase2L1TJetSeedReductionProducer.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
 */
-//
-// Original Author:  Liam Robertshaw [SP/JB 2209]
-//         Created:  Mon, 17 Feb 2025 15:00:41 GMT
-//
-//
 
-// system include files
 #include <memory>
-
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-
-//
-// class declaration
-//
 
 class Phase2L1TJetSeedReductionProducer : public edm::stream::EDProducer<> {
 public:
@@ -53,19 +34,10 @@ private:
   //void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
+  edm::EDGetTokenT<std::vector<l1t::PFCandidate>> seedsToken;
+  std::string outputCollectionName_;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 Phase2L1TJetSeedReductionProducer::Phase2L1TJetSeedReductionProducer(const edm::ParameterSet& cfg) 
   : seedsToken(consumes<l1t::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("histoSeeds"))),
     outputCollectionName_(iConfig.getParameter<std::string>("outputCollectionName")) 
@@ -84,20 +56,7 @@ Phase2L1TJetSeedReductionProducer::Phase2L1TJetSeedReductionProducer(const edm::
   produces<l1t::PFCandidateCollection>(outputCollectionName_);
 }
 
-
-Phase2L1TJetSeedReductionProducer::~Phase2L1TJetSeedReductionProducer() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
-  //
-  // please remove this method altogether if it would be left empty
-}
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
-void Phase2L1TJetSeedReductionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void Phase2L1TJetSeedReductionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
   // GET SEEDS FROM EDM INPUT
   edm::Handle<l1t::PFCandidateCollection> seedsHandle;
@@ -107,10 +66,29 @@ void Phase2L1TJetSeedReductionProducer::produce(edm::Event& iEvent, const edm::E
     seeds.push_back(edm::Ptr<l1t::PFCandidate>(seedsHandle, i));
   }
 
-  //code
-  
+  /*
+  YOUR CODE HERE, EXAMPLE:
+
+  l1t::PFCandidateCollection reduceSeeds(std::vector<edm::Ptr<l1t::PFCandidate>> seeds){
+    REDUCE HSC4 SEEDS TO HSC8 SEEDS LOGIC HERE
+  }
+
+  */
+
+  // prepare output and put into the event
+  l1t::PFCandidateCollection reducedSeeds;
+  iEvent.put(std::move(reducedSeeds), outputCollectionName_);
 }
 
+/* DESTRUCTOR */
+Phase2L1TJetSeedReductionProducer::~Phase2L1TJetSeedReductionProducer() {
+  // do anything here that needs to be done at destruction time
+  // (e.g. close files, deallocate resources etc.)
+  //
+  // please remove this method altogether if it would be left empty
+}
+
+/*
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
 void Phase2L1TJetSeedReductionProducer::beginStream(edm::StreamID) {
   // please remove this method if not needed
@@ -153,6 +131,7 @@ Phase2L1TJetSeedReductionProducer::endLuminosityBlock(edm::LuminosityBlock const
 {
 }
 */
+
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void Phase2L1TJetSeedReductionProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
