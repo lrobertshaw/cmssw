@@ -185,10 +185,12 @@ l1t::PFJet L1SeedConePFJetProducer::makeJet_SW(const std::vector<edm::Ptr<l1t::P
     py_tot += py;
     pz_tot += pz;
   }
-  float mass = std::sqrt( E_tot*E_tot - px_tot*px_tot - py_tot*py_tot - pz_tot*pz_tot );
+  float massReg = std::sqrt( E_tot*E_tot - px_tot*px_tot - py_tot*py_tot - pz_tot*pz_tot );
+  // float massPt = std::sqrt( E_tot*E_tot - pt*pt - pz_tot*pz_tot );
+  // float mass = std::sqrt( (px_tot*px_tot) + (py_tot*py_tot) );
   // printf("mass = %f\n", mass);
 
-  l1t::PFJet jet(pt, eta, phi, mass);    // added mass
+  l1t::PFJet jet(pt, eta, phi, massReg);    // added mass
   for (auto it = parts.begin(); it != parts.end() ; it++) {
     jet.addConstituent(*it);
   }
@@ -285,7 +287,7 @@ std::vector<l1t::PFJet> L1SeedConePFJetProducer::convertHWToEDM( std::vector<L1S
     l1t::PFJet edmJet(l1gt::Scales::floatPt(gtJet.v3.pt),
                       l1gt::Scales::floatEta(gtJet.v3.eta),
                       l1gt::Scales::floatPhi(gtJet.v3.phi),
-                      jet.hwMass.to_float(),    // note because mass not passed to
+                      jet.hwMass.to_float(),    // note because mass not passed to gt
                       gtJet.v3.pt.V,
                       gtJet.v3.eta.V,
                       gtJet.v3.phi.V);

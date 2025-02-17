@@ -82,13 +82,14 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const
     }
     // std::cout << "truncated[" << iConst << "]: " << truncated[iConst].hwPt << ", " << truncated[iConst].hwEta << ", " << truncated[iConst].hwPhi << std::endl;
   }
-  mass_t mass = L1SCJetEmu::jetMass_HW( truncated );
+  mass_t ptmass = L1SCJetEmu::jetPtMass_HW( truncated );
+  mass_t regmass = L1SCJetEmu::jetMass_HW( truncated );
 
   Jet jet;
   jet.hwPt = pt;
   jet.hwEta = eta;
   jet.hwPhi = phi;
-  jet.hwMass = mass;
+  jet.hwMass = regmass;
   jet.constituents = truncated;
 
   if (debug_) {
@@ -106,13 +107,51 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const
   return jet;
 }
 
+L1SCJetEmu::mass_t L1SCJetEmu::jetPtMass_HW(const std::vector<Particle>& parts) const {    // need ampersand?
+  // for(auto part : parts){
+  //   std::cout << part.hwPt << ", " << part.hwEta << ", " << part.hwPhi << std::endl;
+  // }
+
+  // INSTANTIATE LUTS
+  static constexpr int N = 186;
+  static eventrig_t cosh_lut[N];
+  static oddtrig_t sinh_lut[N];
+  for (unsigned hwEtaPhi = 0; hwEtaPhi < N; hwEtaPhi++) {
+    float x = l1ct::  Scales::floatEta((etaphi_t)hwEtaPhi);    // for each step in hardware units, convert
+    cosh_lut[hwEtaPhi] = cosh(x); // Store cosh(hwEta) in hardware units
+    sinh_lut[hwEtaPhi] = sinh(x); // Store sinh(hwEta) in hardware units
+  }
+
+  std::vector<ppt_t> energy;
+  energy.resize(parts.size());
+  std::transform(parts.begin(), parts.end(), energy.begin(), [](const Particle& part) {
+    return ppt_t( part.hwPt * cosh_lut[std::abs(part.hwEta)] );
+  });
+  ppt_t sum_energy = std::accumulate(energy.begin(), energy.end(), ppt_t(0));
+
+  // Event with saturation, order of terms doesn't matter since they're all positive
+  auto sumpt = [](pt_t(a), const Particle& b) { return a + b.hwPt; };    // essentially a python lambda fn
+  ppt_t pt = std::accumulate(parts.begin(), parts.end(), pt_t(0), sumpt);
+
+  std::vector<npt_t> pz;
+  pz.resize(parts.size());
+  std::transform(parts.begin(), parts.end(), pz.begin(), [](const Particle& part) {
+    return npt_t( part.hwPt * sinh_lut[std::abs(part.hwEta)] * ((part.hwEta >= 0) ? 1 : -1) );
+  });
+  npt_t sum_pz = std::accumulate(pz.begin(), pz.end(), npt_t(0));
+
+  // mass2_t mass2 = (sum_energy * sum_energy) - (sum_px * sum_px) - (sum_py * sum_py) - (sum_pz * sum_pz);
+  mass2_t mass2 = (sum_energy * sum_energy) - (pt * pt) - (sum_pz * sum_pz);
+  return std::sqrt(static_cast<float>(mass2));
+}
+
 L1SCJetEmu::mass_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts) const {    // need ampersand?
   // for(auto part : parts){
   //   std::cout << part.hwPt << ", " << part.hwEta << ", " << part.hwPhi << std::endl;
   // }
 
   // INSTANTIATE LUTS
-  static constexpr int N = 185;
+  static constexpr int N = 186;
   static eventrig_t cosh_lut[N];
   static eventrig_t cos_lut[N];
   static oddtrig_t sin_lut[N];
@@ -128,50 +167,34 @@ L1SCJetEmu::mass_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts) co
   std::vector<ppt_t> energy;
   energy.resize(parts.size());
   std::transform(parts.begin(), parts.end(), energy.begin(), [](const Particle& part) {
-    // ppt_t e = ppt_t( part.hwPt * cosh_lut[std::abs(part.hwEta)] );
-    // std::cout << "energy: " << e << std::endl;
     return ppt_t( part.hwPt * cosh_lut[std::abs(part.hwEta)] );
   });
   ppt_t sum_energy = std::accumulate(energy.begin(), energy.end(), ppt_t(0));
-  // std::cout << "sum_energy: " << sum_energy << std::endl;
 
   std::vector<ppt_t> px;
   px.resize(parts.size());
   std::transform(parts.begin(), parts.end(), px.begin(), [](const Particle& part) {
-    // ppt_t pxx = ppt_t( part.hwPt * cos_lut[std::abs(part.hwPhi)] );
-    // std::cout << "pxx: " << pxx << std::endl;
     return ppt_t( part.hwPt * cos_lut[std::abs(part.hwPhi)] );
   });
   ppt_t sum_px = std::accumulate(px.begin(), px.end(), ppt_t(0));
-  // std::cout << "sum_px: " << sum_px << std::endl;
 
   std::vector<npt_t> py;
   py.resize(parts.size());
   std::transform(parts.begin(), parts.end(), py.begin(), [](const Particle& part) {
-    // npt_t pyy = npt_t( part.hwPt * sin_lut[std::abs(part.hwPhi)] * ((part.hwPhi >= 0) ? 1 : -1) );
-    // std::cout << "pyy: " << pyy << std::endl;
     return npt_t( part.hwPt * sin_lut[std::abs(part.hwPhi)] * ((part.hwPhi >= 0) ? 1 : -1) );
   });
   npt_t sum_py = std::accumulate(py.begin(), py.end(), npt_t(0));
-  // std::cout << "sum_py: " << sum_py << std::endl;
 
   std::vector<npt_t> pz;
   pz.resize(parts.size());
   std::transform(parts.begin(), parts.end(), pz.begin(), [](const Particle& part) {
-    // npt_t pzz = npt_t( part.hwPt * sinh_lut[std::abs(part.hwEta)] * ((part.hwEta >= 0) ? 1 : -1) );
-    // std::cout << "pzz: " << pzz << std::endl;
     return npt_t( part.hwPt * sinh_lut[std::abs(part.hwEta)] * ((part.hwEta >= 0) ? 1 : -1) );
   });
   npt_t sum_pz = std::accumulate(pz.begin(), pz.end(), npt_t(0));
-  // std::cout << "sum_pz: " << sum_pz << std::endl;
 
   mass2_t mass2 = (sum_energy * sum_energy) - (sum_px * sum_px) - (sum_py * sum_py) - (sum_pz * sum_pz);
-  // std::cout << "mass2: " << mass2 << std::endl;
-  mass_t mass = std::pow( mass2, 0.5 );
-  // std::cout << "mass: " << mass << std::endl;
-  return mass;
+  return std::sqrt(static_cast<float>(mass2));
 }
-
 
 std::vector<L1SCJetEmu::Jet> L1SCJetEmu::emulateEvent(std::vector<Particle>& parts, std::vector<Particle>& seeds, bool useExternalSeeds, bool allowDoubleCounting) const {
   // The fixed point algorithm emulation

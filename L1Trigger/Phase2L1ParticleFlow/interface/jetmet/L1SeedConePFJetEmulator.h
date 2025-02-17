@@ -159,6 +159,7 @@ private:
   bool inCone(Particle seed, Particle part) const;
   Jet makeJet_HW(const std::vector<Particle>& parts) const;
   mass_t jetMass_HW(const std::vector<Particle>& parts) const;
+  mass_t jetPtMass_HW(const std::vector<Particle>& parts) const;
 };  // class L1SCJetEmu
 
 #endif
