@@ -102,6 +102,8 @@ private:
   double etaLow_;
   double etaUp_;
   unsigned int nBinsPhi_;
+  double phiLow_;
+  double phiUp_;
   unsigned int jetIEtaSize_;
   unsigned int jetIPhiSize_;
   bool fatJet_;
@@ -128,6 +130,8 @@ Phase1L1TJetSeedProducer::Phase1L1TJetSeedProducer(const edm::ParameterSet& iCon
       etaLow_(iConfig.getParameter<double>("etaLow")),
       etaUp_(iConfig.getParameter<double>("etaUp")),
       nBinsPhi_(iConfig.getParameter<unsigned int>("nBinsPhi")),
+      phiLow_(iConfig.getParameter<double>("phiLow")),
+      phiUp_(iConfig.getParameter<double>("phiUp")),
       jetIEtaSize_(iConfig.getParameter<unsigned int>("jetIEtaSize")),
       jetIPhiSize_(iConfig.getParameter<unsigned int>("jetIPhiSize")),
       fatJet_(iConfig.getParameter<bool>("fatJet")),
