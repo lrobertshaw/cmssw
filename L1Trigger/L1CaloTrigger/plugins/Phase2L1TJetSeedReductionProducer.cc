@@ -87,10 +87,10 @@ void Phase2L1TJetSeedReductionProducer::produce(edm::Event& iEvent, const edm::E
     // std::cout << "Seed "<< i << ": " << seed.pt() << std::endl;
   }
 
-  std::unique_ptr<l1t::PFCandidateCollection> reducedSeedsPtr;//(new l1t::PFCandidateCollection);
+  // NOTE CAN ONLY PUT POINTERS INTO THE EVENT, NOT THE OBJECTS THEMSELVES
+  std::unique_ptr<l1t::PFCandidateCollection> reducedSeedsPtr = std::make_unique<l1t::PFCandidateCollection>();
   reducedSeedsPtr->swap(reducedSeeds);
-
-  iEvent.put(std::move(reducedSeedsPtr), outputCollectionName_);    // NOTE CAN ONLY PUT POINTERS INTO THE EVENT, NOT THE OBJECTS THEMSELVES
+  iEvent.put(std::move(reducedSeedsPtr), outputCollectionName_);
 }
 
 /* DESTRUCTOR */
