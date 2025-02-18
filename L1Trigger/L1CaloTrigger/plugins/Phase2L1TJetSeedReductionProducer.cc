@@ -45,7 +45,7 @@ private:
 };
 
 Phase2L1TJetSeedReductionProducer::Phase2L1TJetSeedReductionProducer(const edm::ParameterSet& cfg) 
-  : seedsToken(consumes<l1t::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("histoSeeds"))),
+  : seedsToken(consumes<l1t::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("seeds"))),
     outputCollectionName_(cfg.getParameter<std::string>("outputCollectionName")) 
 {
   //register your products
@@ -143,7 +143,8 @@ void Phase2L1TJetSeedReductionProducer::fillDescriptions(edm::ConfigurationDescr
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>("seeds", edm::InputTag("l1tHSC8PFL1PuppiSimSeedProducer", "WIDEHSCEMUSEEDS"));
+  desc.add<edm::InputTag>("seeds", edm::InputTag("l1tPhase1JetSeedProducer", "seeds"));
+  desc.add<std::string>("outputCollectionName", "reducedSeeds");
   
   descriptions.addWithDefaultLabel(desc);
 }
