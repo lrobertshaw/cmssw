@@ -84,9 +84,8 @@ void L1SeedConePFJetProducer::produce(edm::StreamID /*unused*/,
   std::unique_ptr<l1t::PFCandidateCollection> usedSeedsCollection(new l1t::PFCandidateCollection);
 
   edm::Handle<l1t::PFCandidateCollection> l1PFCandidates;
-  iEvent.getByToken(l1PFToken, l1PFCandidates);
-
   std::vector<edm::Ptr<l1t::PFCandidate>> particles;
+  iEvent.getByToken(l1PFToken, l1PFCandidates);
   for (unsigned i = 0; i < (*l1PFCandidates).size(); i++) {
     particles.push_back(edm::Ptr<l1t::PFCandidate>(l1PFCandidates, i));
   }
