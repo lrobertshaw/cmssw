@@ -32,17 +32,20 @@ private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
   /// ///////////////// ///
 
-  const float coneSize;
-  const unsigned nJets;
-  const bool HW;
-  const bool debug;
-  const bool doCorrections;
+  float coneSize;
+  unsigned nJets;
+  bool HW;
+  bool debug;
+  bool doCorrections;
+  bool useExternalSeeds;
+  bool allowDoubleCounting;
   L1SCJetEmu emulator;
   edm::EDGetTokenT<std::vector<l1t::PFCandidate>> l1PFToken;
+  edm::EDGetTokenT<std::vector<l1t::PFCandidate>> seedsToken;
   l1tpf::corrector corrector;
 
-  std::vector<l1t::PFJet> processEvent_SW(std::vector<edm::Ptr<l1t::PFCandidate>>& parts) const;
-  std::vector<l1t::PFJet> processEvent_HW(std::vector<edm::Ptr<l1t::PFCandidate>>& parts) const;
+  std::vector<std::pair<l1t::PFJet, l1t::PFCandidate>> processEvent_SW(std::vector<edm::Ptr<l1t::PFCandidate>>& parts, std::vector<edm::Ptr<l1t::PFCandidate>>& seeds) const;
+  std::vector<l1t::PFJet> processEvent_HW(std::vector<edm::Ptr<l1t::PFCandidate>>& parts, std::vector<edm::Ptr<l1t::PFCandidate>>& seeds) const;
 
   l1t::PFJet makeJet_SW(const std::vector<edm::Ptr<l1t::PFCandidate>>& parts) const;
 
@@ -60,9 +63,14 @@ L1SeedConePFJetProducer::L1SeedConePFJetProducer(const edm::ParameterSet& cfg)
       HW(cfg.getParameter<bool>("HW")),
       debug(cfg.getParameter<bool>("debug")),
       doCorrections(cfg.getParameter<bool>("doCorrections")),
+      useExternalSeeds(cfg.getParameter<bool>("useExternalSeeds")),
+      allowDoubleCounting(cfg.getParameter<bool>("allowDoubleCounting")),
       emulator(L1SCJetEmu(debug, coneSize, nJets)),
-      l1PFToken(consumes<std::vector<l1t::PFCandidate>>(cfg.getParameter<edm::InputTag>("L1PFObjects"))) {
+      l1PFToken(consumes<std::vector<l1t::PFCandidate>>(cfg.getParameter<edm::InputTag>("L1PFObjects"))),
+      seedsToken(consumes<l1t::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("JetSeeds")))
+       {
   produces<l1t::PFJetCollection>();
+  produces<l1t::PFCandidateCollection>("seeds");
   if (doCorrections) {
     corrector = l1tpf::corrector(
         cfg.getParameter<std::string>("correctorFile"), cfg.getParameter<std::string>("correctorDir"), -1., debug, HW);
@@ -73,6 +81,7 @@ void L1SeedConePFJetProducer::produce(edm::StreamID /*unused*/,
                                       edm::Event& iEvent,
                                       const edm::EventSetup& iSetup) const {
   std::unique_ptr<l1t::PFJetCollection> newPFJetCollection(new l1t::PFJetCollection);
+  std::unique_ptr<l1t::PFCandidateCollection> usedSeedsCollection(new l1t::PFCandidateCollection);
 
   edm::Handle<l1t::PFCandidateCollection> l1PFCandidates;
   iEvent.getByToken(l1PFToken, l1PFCandidates);
@@ -82,17 +91,51 @@ void L1SeedConePFJetProducer::produce(edm::StreamID /*unused*/,
     particles.push_back(edm::Ptr<l1t::PFCandidate>(l1PFCandidates, i));
   }
 
+  edm::Handle<l1t::PFCandidateCollection> seedsHandle;
+  std::vector<edm::Ptr<l1t::PFCandidate>> seeds;
+  if ( useExternalSeeds ) {
+    iEvent.getByToken(seedsToken, seedsHandle);
+    for (unsigned i = 0; i < (*seedsHandle).size(); i++) {
+      seeds.push_back(edm::Ptr<l1t::PFCandidate>(seedsHandle, i));
+    }
+  }
+  
   std::vector<l1t::PFJet> jets;
   if (HW) {
     jets = processEvent_HW(particles, seeds);
+    std::sort(jets.begin(), jets.end(), [](l1t::PFJet i, l1t::PFJet j) { return (i.pt() > j.pt()); });
+    newPFJetCollection->swap(jets);
+    iEvent.put(std::move(newPFJetCollection));  // Add jets to the event
   }
   else {
-    jets = processEvent_SW(particles, seeds);
+    std::vector<std::pair<l1t::PFJet, l1t::PFCandidate>> jetsAndSeeds;
+    std::vector<l1t::PFCandidate> usedSeeds;
+    jetsAndSeeds = processEvent_SW(particles, seeds);
+    // Sort by jet pt
+    std::sort(jetsAndSeeds.begin(), jetsAndSeeds.end(),
+        [](const std::pair<l1t::PFJet, l1t::PFCandidate>& a, const std::pair<l1t::PFJet, l1t::PFCandidate>& b) {
+            return (a.first.pt() > b.first.pt());
+        });
+      // Clear original jets and seeds collections
+    jets.clear();
+    usedSeeds.clear();
+      // Populate the collections with sorted jets and seeds
+    for (const auto& jetSeedPair : jetsAndSeeds) {
+      jets.push_back(jetSeedPair.first);         // Sorted jets
+      usedSeeds.push_back(jetSeedPair.second);  // Corresponding sorted seeds
+    }
+    newPFJetCollection->swap(jets);
+    iEvent.put(std::move(newPFJetCollection));  // Add jets to the event
+    usedSeedsCollection->swap(usedSeeds);
+    iEvent.put(std::move(usedSeedsCollection), "seeds");  // Add seeds to the event
   }
 
-  std::sort(jets.begin(), jets.end(), [](l1t::PFJet i, l1t::PFJet j) { return (i.pt() > j.pt()); });
-  newPFJetCollection->swap(jets);
-  iEvent.put(std::move(newPFJetCollection));
+  // Added for temp debugging
+  // if ( !useExternalSeeds ) {
+  //   jets.erase(std::remove_if(jets.begin(), jets.end(), [](const l1t::PFJet& j) {
+  //         return abs(j.eta()) > 3;
+  //     }), jets.end());
+  // }
 }
 
 /////////////
@@ -142,10 +185,12 @@ l1t::PFJet L1SeedConePFJetProducer::makeJet_SW(const std::vector<edm::Ptr<l1t::P
     py_tot += py;
     pz_tot += pz;
   }
-  float mass = std::sqrt( E_tot*E_tot - px_tot*px_tot - py_tot*py_tot - pz_tot*pz_tot );
+  float massReg = std::sqrt( E_tot*E_tot - px_tot*px_tot - py_tot*py_tot - pz_tot*pz_tot );
+  // float massPt = std::sqrt( E_tot*E_tot - pt*pt - pz_tot*pz_tot );
+  // float mass = std::sqrt( (px_tot*px_tot) + (py_tot*py_tot) );
   // printf("mass = %f\n", mass);
 
-  l1t::PFJet jet(pt, eta, phi, mass);    // added mass
+  l1t::PFJet jet(pt, eta, phi, massReg);    // added mass
   for (auto it = parts.begin(); it != parts.end() ; it++) {
     jet.addConstituent(*it);
   }
@@ -157,7 +202,8 @@ l1t::PFJet L1SeedConePFJetProducer::makeJet_SW(const std::vector<edm::Ptr<l1t::P
   return jet;
 }
 
-std::vector<l1t::PFJet> L1SeedConePFJetProducer::processEvent_SW(std::vector<edm::Ptr<l1t::PFCandidate>>& work) const {
+// std::vector<l1t::PFJet>
+std::vector<std::pair<l1t::PFJet, l1t::PFCandidate>> L1SeedConePFJetProducer::processEvent_SW(std::vector<edm::Ptr<l1t::PFCandidate>>& work, std::vector<edm::Ptr<l1t::PFCandidate>>& seeds) const {
   // The floating point algorithm simulation
   std::stable_sort(work.begin(), work.end(), [](edm::Ptr<l1t::PFCandidate> i, edm::Ptr<l1t::PFCandidate> j) {
     return (i->pt() > j->pt());    // this sorts the candidates by pT
@@ -165,9 +211,12 @@ std::vector<l1t::PFJet> L1SeedConePFJetProducer::processEvent_SW(std::vector<edm
   std::vector<l1t::PFJet> jets;    // make vector of jets
   jets.reserve(nJets);    // reserve enough entries for nJets
 
+  std::vector<l1t::PFCandidate> usedSeeds;
+  usedSeeds.reserve(nJets);
   while (!work.empty() && jets.size() < nJets) {    // whilst theres candidates in the array and nJets havent yet been found
     if( useExternalSeeds && seeds.empty() ) break;
     edm::Ptr<l1t::PFCandidate> seed = (useExternalSeeds && !seeds.empty()) ? seeds.front() : work.front();    // If use external seeds true, use external seeds, else use highest pt cand
+    usedSeeds.push_back(*seed);  // Add the seed to the collection
 
     // Get the particles within a coneSize of the seed
     std::vector<edm::Ptr<l1t::PFCandidate>> particlesInCone;
@@ -193,15 +242,23 @@ std::vector<l1t::PFJet> L1SeedConePFJetProducer::processEvent_SW(std::vector<edm
       // if (debug_){ dbgCout() << "N seeds remaining and: " << seeds.size() << std::endl;
       }
   }
-  return jets;
+
+  std::vector<std::pair<l1t::PFJet, l1t::PFCandidate>> jetsAndSeeds;
+  for (size_t i = 0; i < jets.size(); ++i) {
+    jetsAndSeeds.push_back(std::make_pair(jets[i], usedSeeds.at(i)));
+  }
+  return jetsAndSeeds;
 }
 
-std::vector<l1t::PFJet> L1SeedConePFJetProducer::processEvent_HW(std::vector<edm::Ptr<l1t::PFCandidate>>& work) const {
+std::vector<l1t::PFJet> L1SeedConePFJetProducer::processEvent_HW(std::vector<edm::Ptr<l1t::PFCandidate>>& work, std::vector<edm::Ptr<l1t::PFCandidate>>& seeds) const {
   // The fixed point emulator
   // Convert the EDM format to the hardware format, and call the standalone emulator
   std::pair<std::vector<L1SCJetEmu::Particle>, std::unordered_map<const l1t::PFCandidate*, edm::Ptr<l1t::PFCandidate>>>
       particles = convertEDMToHW(work);
-  std::vector<L1SCJetEmu::Jet> jets = emulator.emulateEvent(particles.first);
+  std::pair<std::vector<L1SCJetEmu::Particle>, std::unordered_map<const l1t::PFCandidate*, edm::Ptr<l1t::PFCandidate>>>
+      hwSeeds = convertEDMToHW(seeds);
+
+  std::vector<L1SCJetEmu::Jet> jets = emulator.emulateEvent(particles.first, hwSeeds.first, useExternalSeeds, allowDoubleCounting);
   return convertHWToEDM(jets, particles.second);
 }
 
@@ -230,7 +287,7 @@ std::vector<l1t::PFJet> L1SeedConePFJetProducer::convertHWToEDM( std::vector<L1S
     l1t::PFJet edmJet(l1gt::Scales::floatPt(gtJet.v3.pt),
                       l1gt::Scales::floatEta(gtJet.v3.eta),
                       l1gt::Scales::floatPhi(gtJet.v3.phi),
-                      jet.hwMass.to_float(),    // note because mass not passed to
+                      jet.hwMass.to_float(),    // note because mass not passed to gt
                       gtJet.v3.pt.V,
                       gtJet.v3.eta.V,
                       gtJet.v3.phi.V);
@@ -256,6 +313,9 @@ void L1SeedConePFJetProducer::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<bool>("doCorrections", false);
   desc.add<std::string>("correctorFile", "");
   desc.add<std::string>("correctorDir", "");
+  desc.add<bool>("useExternalSeeds", false );
+  desc.add<bool>("allowDoubleCounting", false );
+  desc.add<edm::InputTag>("JetSeeds", edm::InputTag("l1tPhase1JetSeedProducer9x9trimmed","histoJetSeeds9x9trimmed"));
   descriptions.addWithDefaultLabel(desc);
 }
 
