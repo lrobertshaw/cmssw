@@ -18,7 +18,7 @@ namespace l1ct {
     mass_t hwMass;
 
     inline bool operator==(const Jet &other) const {
-      return hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi;
+      return hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwMass == other.hwMass;
     }
 
     inline bool operator>(const Jet &other) const { return hwPt > other.hwPt; }
