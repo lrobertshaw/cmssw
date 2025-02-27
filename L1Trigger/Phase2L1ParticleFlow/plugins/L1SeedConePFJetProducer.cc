@@ -128,7 +128,7 @@ l1t::PFJet L1SeedConePFJetProducer::makeJet_SW(const std::vector<edm::Ptr<l1t::P
   std::vector<float> en;
   en.resize(parts.size());
   std::transform(parts.begin(), parts.end(), en.begin(), [](const edm::Ptr<l1t::PFCandidate>& part) {
-    return std::pow( (part->pt() * std::cosh(part->eta())), 2) + std::pow(part->mass(), 2);
+    return std::pow( std::pow( (part->pt() * std::cosh(part->eta())), 2) + std::pow(part->mass(), 2), 0.5 );
   });
   float en_tot = std::accumulate(en.begin(), en.end(), 0.0);
 
