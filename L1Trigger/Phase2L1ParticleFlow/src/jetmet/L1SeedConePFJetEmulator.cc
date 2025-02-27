@@ -59,23 +59,6 @@ L1SCJetEmu::mass_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts) co
   static std::array<eventrig_t, hwEtaPhi_steps> cos_lut = init_trig_lut<eventrig_t, hwEtaPhi_steps>([](float x) -> eventrig_t { return std::cos(x); });
   static std::array<oddtrig_t, hwEtaPhi_steps> sin_lut = init_trig_lut<oddtrig_t, hwEtaPhi_steps>([](float x) -> oddtrig_t { return std::sin(x); });
   static std::array<oddtrig_t, hwEtaPhi_steps> sinh_lut = init_trig_lut<oddtrig_t, hwEtaPhi_steps>([](float x) -> oddtrig_t { return std::sinh(x); });
-  
-  // static eventrig_t cosh_lut = init_trig_lut<eventrig_t, N>([](float x) { return std::cosh(x); });
-  // static eventrig_t cos_lut = init_trig_lut<eventrig_t, N>([](float x) { return std::cos(x); });
-  // static oddtrig_t sin_lut = init_trig_lut<oddtrig_t, N>([](float x) { return std::sin(x); });
-  // static oddtrig_t sinh_lut = init_trig_lut<oddtrig_t, N>([](float x) { return std::sinh(x); });
-
-  // static eventrig_t cosh_lut[N];
-  // static eventrig_t cos_lut[N];
-  // static oddtrig_t sin_lut[N];
-  // static oddtrig_t sinh_lut[N];
-  // for (unsigned hwEtaPhi = 0; hwEtaPhi < N; hwEtaPhi++) {
-  //   float x = l1ct::  Scales::floatEta((etaphi_t)hwEtaPhi);    // for each step in hardware units, convert
-  //   cosh_lut[hwEtaPhi] = cosh(x); // Store cosh(hwEta) in hardware units
-  //   cos_lut[hwEtaPhi] = cos(x);   // Store cos(hwEta) in hardware units
-  //   sin_lut[hwEtaPhi] = sin(x);   // Store sin(hwEta) in hardware units
-  //   sinh_lut[hwEtaPhi] = sinh(x); // Store sinh(hwEta) in hardware units
-  // }
 
   std::vector<ppt_t> en;
   en.resize(parts.size());
@@ -111,7 +94,6 @@ L1SCJetEmu::mass_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts) co
 
 L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts, const Particle seed) const {
   // Seed Cone Jet algorithm with ap_fixed types and hardware emulation
-  // Particle seed = reduce(parts, op_max);
 
   // Event with saturation, order of terms doesn't matter since they're all positive
   auto sumpt = [](pt_t(a), const Particle& b) { return a + b.hwPt; };    // essentially a python lambda fn
