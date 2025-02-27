@@ -49,6 +49,7 @@ namespace l1gt {
     inline float floatEta(eta_t eta) { return eta.to_float() * ETAPHI_LSB; }
     inline float floatPhi(phi_t phi) { return phi.to_float() * ETAPHI_LSB; }
     inline float floatZ0(z0_t z0) { return z0.to_float() * Z0_UNITS; }
+    inline float floatMass(mass_t mass){ return mass.to_float(); }
   }  // namespace Scales
 
   struct ThreeVector {
