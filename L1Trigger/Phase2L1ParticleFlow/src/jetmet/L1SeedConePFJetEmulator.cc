@@ -54,26 +54,35 @@ std::vector<L1SCJetEmu::Particle> L1SCJetEmu::sortConstituents(const std::vector
 
 L1SCJetEmu::mass_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts) const {    // need ampersand?
 
-  // INSTANTIATE LUTS
-  static constexpr int N = 186;
-  static eventrig_t cosh_lut[N];
-  static eventrig_t cos_lut[N];
-  static oddtrig_t sin_lut[N];
-  static oddtrig_t sinh_lut[N];
-  for (unsigned hwEtaPhi = 0; hwEtaPhi < N; hwEtaPhi++) {
-    float x = l1ct::  Scales::floatEta((etaphi_t)hwEtaPhi);    // for each step in hardware units, convert
-    cosh_lut[hwEtaPhi] = cosh(x); // Store cosh(hwEta) in hardware units
-    cos_lut[hwEtaPhi] = cos(x);   // Store cos(hwEta) in hardware units
-    sin_lut[hwEtaPhi] = sin(x);   // Store sin(hwEta) in hardware units
-    sinh_lut[hwEtaPhi] = sinh(x); // Store sinh(hwEta) in hardware units
-  }
+  // // INSTANTIATE LUTS
+  static std::array<eventrig_t, hwEtaPhi_steps> cosh_lut = init_trig_lut<eventrig_t, hwEtaPhi_steps>([](float x) -> eventrig_t { return std::cosh(x); });
+  static std::array<eventrig_t, hwEtaPhi_steps> cos_lut = init_trig_lut<eventrig_t, hwEtaPhi_steps>([](float x) -> eventrig_t { return std::cos(x); });
+  static std::array<oddtrig_t, hwEtaPhi_steps> sin_lut = init_trig_lut<oddtrig_t, hwEtaPhi_steps>([](float x) -> oddtrig_t { return std::sin(x); });
+  static std::array<oddtrig_t, hwEtaPhi_steps> sinh_lut = init_trig_lut<oddtrig_t, hwEtaPhi_steps>([](float x) -> oddtrig_t { return std::sinh(x); });
+  
+  // static eventrig_t cosh_lut = init_trig_lut<eventrig_t, N>([](float x) { return std::cosh(x); });
+  // static eventrig_t cos_lut = init_trig_lut<eventrig_t, N>([](float x) { return std::cos(x); });
+  // static oddtrig_t sin_lut = init_trig_lut<oddtrig_t, N>([](float x) { return std::sin(x); });
+  // static oddtrig_t sinh_lut = init_trig_lut<oddtrig_t, N>([](float x) { return std::sinh(x); });
 
-  std::vector<ppt_t> energy;
-  energy.resize(parts.size());
-  std::transform(parts.begin(), parts.end(), energy.begin(), [](const Particle& part) {
+  // static eventrig_t cosh_lut[N];
+  // static eventrig_t cos_lut[N];
+  // static oddtrig_t sin_lut[N];
+  // static oddtrig_t sinh_lut[N];
+  // for (unsigned hwEtaPhi = 0; hwEtaPhi < N; hwEtaPhi++) {
+  //   float x = l1ct::  Scales::floatEta((etaphi_t)hwEtaPhi);    // for each step in hardware units, convert
+  //   cosh_lut[hwEtaPhi] = cosh(x); // Store cosh(hwEta) in hardware units
+  //   cos_lut[hwEtaPhi] = cos(x);   // Store cos(hwEta) in hardware units
+  //   sin_lut[hwEtaPhi] = sin(x);   // Store sin(hwEta) in hardware units
+  //   sinh_lut[hwEtaPhi] = sinh(x); // Store sinh(hwEta) in hardware units
+  // }
+
+  std::vector<ppt_t> en;
+  en.resize(parts.size());
+  std::transform(parts.begin(), parts.end(), en.begin(), [](const Particle& part) {
     return ppt_t( part.hwPt * cosh_lut[std::abs(part.hwEta)] );
   });
-  ppt_t sum_energy = std::accumulate(energy.begin(), energy.end(), ppt_t(0));
+  ppt_t sum_en = std::accumulate(en.begin(), en.end(), ppt_t(0));
 
   std::vector<ppt_t> px;
   px.resize(parts.size());
@@ -96,7 +105,7 @@ L1SCJetEmu::mass_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts) co
   });
   npt_t sum_pz = std::accumulate(pz.begin(), pz.end(), npt_t(0));
 
-  mass2_t mass2 = (sum_energy * sum_energy) - (sum_px * sum_px) - (sum_py * sum_py) - (sum_pz * sum_pz);
+  mass2_t mass2 = (sum_en * sum_en) - (sum_px * sum_px) - (sum_py * sum_py) - (sum_pz * sum_pz);
   return std::sqrt(static_cast<float>(mass2));
 }
 

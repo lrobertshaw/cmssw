@@ -55,6 +55,7 @@ private:
   typedef ap_ufixed<18, -2> inv_pt_t;
   static constexpr int N_table_inv_pt = 1024;
   inv_pt_t inv_pt_table_[N_table_inv_pt];
+  static constexpr int hwEtaPhi_steps = 185;    // corresponds to eta/phi range of 0 to 0.8
 
   static constexpr int ceillog2(int x) { return (x <= 2) ? 1 : 1 + ceillog2((x + 1) / 2); }
 
@@ -152,6 +153,16 @@ private:
       dbgCout() << "    post 1 / " << in << " = " << out << "(" << 1 / (float)in << ")" << std::endl;
     }
     return out;
+  }
+
+  template <typename lut_T, int N>
+  static std::array<lut_T, N> init_trig_lut(lut_T (*func)(float)) {
+    std::array<lut_T, N> lut;
+    for (unsigned hwEtaPhi = 0; hwEtaPhi < N; hwEtaPhi++) {
+        float x = l1ct::Scales::floatEta((etaphi_t)hwEtaPhi);
+        lut[hwEtaPhi] = func(x);
+    }
+    return lut;
   }
 
   static detaphi_t deltaPhi(Particle a, Particle b);
