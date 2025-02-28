@@ -49,7 +49,7 @@ namespace l1gt {
     inline float floatEta(eta_t eta) { return eta.to_float() * ETAPHI_LSB; }
     inline float floatPhi(phi_t phi) { return phi.to_float() * ETAPHI_LSB; }
     inline float floatZ0(z0_t z0) { return z0.to_float() * Z0_UNITS; }
-    inline float floatMass(mass_t mass){ return mass.to_float(); }
+    inline float floatMass(mass_t mass) { return mass.to_float(); }
   }  // namespace Scales
 
   struct ThreeVector {
@@ -387,9 +387,7 @@ namespace l1ct {
     return x * Scales::ETAPHI_CTtoGT_SCALE;
   }
 
-  inline l1gt::mass_t CTtoGT_mass(mass_t x) {
-    return (l1gt::mass_t)x;
-  }
+  inline l1gt::mass_t CTtoGT_mass(mass_t x) { return (l1gt::mass_t)x; }
 
 }  // namespace l1ct
 
