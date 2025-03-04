@@ -92,7 +92,7 @@ namespace l1gt {
     // b_tag_score_t hwBtagScore;
     mass_t hwMass;
 
-    inline bool operator==(const Jet &other) const { return valid == other.valid && z0 == other.z0 && v3 == other.v3; }
+    inline bool operator==(const Jet &other) const { return valid == other.valid && z0 == other.z0 && v3 == other.v3 && hwMass == other.hwMass; }
 
     static const int BITWIDTH = 128;
     inline ap_uint<BITWIDTH> pack_ap() const {
