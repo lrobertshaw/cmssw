@@ -44,8 +44,7 @@ std::vector<L1SCJetEmu::Particle> L1SCJetEmu::sortConstituents(const std::vector
   std::vector<Particle> truncated;  // instantiate vector to store truncated, sorted parts
   truncated.resize(NCONSTITSFW);
   for (unsigned iConst = 0; iConst < NCONSTITSFW; ++iConst) {  // iterate over NCONSTITS (or truncated.size())
-    if (iConst <
-        sortedParts.size()) {  // if iConst is less than the number of constituents in the jet then store the constituent
+    if (iConst < sortedParts.size()) {  // if iConst is less than the number of constituents in the jet then store the constituent
       truncated[iConst].hwEta = static_cast<detaphi_t>(sortedParts.at(iConst).hwEta - seed.hwEta);
       truncated[iConst].hwPhi = static_cast<detaphi_t>(deltaPhi(sortedParts.at(iConst), seed));
       truncated[iConst].hwPt = sortedParts.at(iConst).hwPt;
@@ -56,7 +55,7 @@ std::vector<L1SCJetEmu::Particle> L1SCJetEmu::sortConstituents(const std::vector
   return truncated;
 }
 
-L1SCJetEmu::mass_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts) const {  // need ampersand?
+L1SCJetEmu::mass2_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts) const {  // need ampersand?
 
   // // INSTANTIATE LUTS
   static std::array<eventrig_t, hwEtaPhi_steps> cosh_lut =
@@ -96,8 +95,11 @@ L1SCJetEmu::mass_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts) co
   });
   npt_t sum_pz = std::accumulate(pz.begin(), pz.end(), npt_t(0));
 
-  mass2_t mass2 = (sum_en * sum_en) - (sum_px * sum_px) - (sum_py * sum_py) - (sum_pz * sum_pz);
-  return std::sqrt(static_cast<float>(mass2));
+  std::cout << "Emulator mass: " << (sum_en * sum_en) - (sum_px * sum_px) - (sum_py * sum_py) - (sum_pz * sum_pz) << std::endl;
+
+  return (sum_en * sum_en) - (sum_px * sum_px) - (sum_py * sum_py) - (sum_pz * sum_pz);
+  // mass2_t mass2 = (sum_en * sum_en) - (sum_px * sum_px) - (sum_py * sum_py) - (sum_pz * sum_pz);
+  // return std::sqrt(static_cast<float>(mass2));
 }
 
 L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts, const Particle seed) const {
@@ -132,17 +134,16 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts, const
   pt_etaphi_t sum_pt_phi = std::accumulate(pt_dphi.begin(), pt_dphi.end(), pt_etaphi_t(0));
   etaphi_t phi = seed.hwPhi + etaphi_t(sum_pt_phi * inv_pt);  // shift the seed by pt weighted sum_pt_phi
 
-  std::vector<Particle> truncated =
-      sortConstituents(parts, seed);  // sort the constituents by pt and truncate to NCONSTITS
-  mass_t mass = L1SCJetEmu::jetMass_HW(truncated);
+  std::vector<Particle> truncated = sortConstituents(parts, seed);  // sort the constituents by pt and truncate to NCONSTITS
+  mass2_t mass = L1SCJetEmu::jetMass_HW(truncated);
 
   Jet jet;
   jet.hwPt = pt;
   jet.hwEta = eta;
   jet.hwPhi = phi;
   jet.hwMass = mass;
-  jet.constituents = parts;
-  // jet.constituents = truncated;    // store the truncated, sorted NCONSTITSFW sparse array of constituents
+  // jet.constituents = parts;
+  jet.constituents = truncated;    // store the truncated, sorted NCONSTITSFW sparse array of constituents
 
   if (debug_) {
     std::for_each(pt_dphi.begin(), pt_dphi.end(), [](pt_etaphi_t& x) { dbgCout() << "pt_dphi: " << x << std::endl; });

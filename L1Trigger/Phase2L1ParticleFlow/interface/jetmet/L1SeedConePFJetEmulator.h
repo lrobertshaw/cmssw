@@ -24,14 +24,11 @@ public:
   typedef ap_fixed<18, 23> detaphi2_t;   // Type for deta^2 & dphi^2
   typedef ap_fixed<22, 22> pt_etaphi_t;  // Type for product of pt with deta & dphi
 
-  typedef ap_ufixed<13, 1, AP_TRN, AP_SAT>
-      eventrig_t;  // stores values between 0 and 2, - 0 bit for sign, - 1 bit for integer, leaves 12 for frac
-  typedef ap_fixed<13, 1, AP_TRN, AP_SAT>
-      oddtrig_t;  // stores values between -1 and 1, 13 - 1 bit for sign, - 0 bits for integer, leaves 12 for frac
+  typedef ap_ufixed<13, 1, AP_TRN, AP_SAT> eventrig_t;  // stores values between 0 and 2, - 0 bit for sign, - 1 bit for integer, leaves 12 for frac
+  typedef ap_fixed<13, 1, AP_TRN, AP_SAT> oddtrig_t;  // stores values between -1 and 1, 13 - 1 bit for sign, - 0 bits for integer, leaves 12 for frac
 
-  typedef l1ct::mass_t
-      mass_t;  // stores values up to ~1 TeV, 18 bits - 0 for sign, - 10 for integer, 14 total bits improves performance
-  typedef ap_ufixed<24, 20> mass2_t;
+  // typedef l1ct::mass_t mass_t;  // stores values up to ~1 TeV, 18 bits - 0 for sign, - 10 for integer, 14 total bits improves performance
+  typedef l1ct::mass2_t mass2_t;
 
   typedef ap_ufixed<20, 12, AP_TRN, AP_SAT> ppt_t;  // stores values between -1 and 1
   typedef ap_fixed<22, 14, AP_TRN, AP_SAT> npt_t;   // stores values between -1 and 1        JUST REDUCED BY 2
@@ -171,7 +168,7 @@ private:
   static detaphi_t deltaPhi(Particle a, Particle b);
   bool inCone(Particle seed, Particle part) const;
   std::vector<Particle> sortConstituents(const std::vector<Particle>& parts, const Particle seed) const;
-  mass_t jetMass_HW(const std::vector<Particle>& parts) const;
+  mass2_t jetMass_HW(const std::vector<Particle>& parts) const;
   Jet makeJet_HW(const std::vector<Particle>& parts, const Particle seed) const;
 };  // class L1SCJetEmu
 
