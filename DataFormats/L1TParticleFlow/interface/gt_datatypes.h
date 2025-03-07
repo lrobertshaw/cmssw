@@ -92,7 +92,7 @@ namespace l1gt {
     // b_tag_score_t hwBtagScore;
     mass_t hwMass;
 
-    inline bool operator==(const Jet &other) const { return valid == other.valid && z0 == other.z0 && v3 == other.v3; }
+    inline bool operator==(const Jet &other) const { return valid == other.valid && z0 == other.z0 && hwMass == other.hwMass && v3 == other.v3; }
 
     static const int BITWIDTH = 128;
     inline ap_uint<BITWIDTH> pack_ap() const {
@@ -102,6 +102,7 @@ namespace l1gt {
       pack_into_bits(ret, start, v3.pack());
       pack_into_bits(ret, start, z0);
       // pack_into_bits(ret, start, hwBtagScore);
+      start = 64; // Put mass on second word
       pack_into_bits(ret, start, hwMass);
       return ret;
     }
@@ -128,6 +129,7 @@ namespace l1gt {
       unpack_from_bits(src, start, v3.eta);
       unpack_from_bits(src, start, z0);
       // unpack_from_bits(src, start, hwBtagScore);
+      start = 64; // Mass on second word
       unpack_from_bits(src, start, hwMass);
     }
 
@@ -141,6 +143,14 @@ namespace l1gt {
     inline static Jet unpack(long long unsigned int &src) {
       // unpack from single 64b int
       ap_uint<BITWIDTH> bits = src;
+      return unpack_ap(bits);
+    }
+
+    inline static Jet unpack(const std::array<long long unsigned int,2> &src) {
+      // unpack from two 64b ints
+      ap_uint<BITWIDTH> bits;
+      bits(63, 0) = src[0];
+      bits(127, 64) = src[1];
       return unpack_ap(bits);
     }
 
