@@ -140,8 +140,8 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts, const
   jet.hwEta = eta;
   jet.hwPhi = phi;
   jet.hwMass = mass;
-  // jet.constituents = parts;
-  jet.constituents = truncated;  // store the truncated, sorted NCONSTITSFW sparse array of constituents
+  jet.constituents = parts;
+  // jet.constituents = truncated;  // store the truncated, sorted NCONSTITSFW sparse array of constituents
 
   if (debug_) {
     std::for_each(pt_dphi.begin(), pt_dphi.end(), [](pt_etaphi_t& x) { dbgCout() << "pt_dphi: " << x << std::endl; });
