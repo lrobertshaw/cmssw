@@ -63,9 +63,8 @@ namespace l1ct {
     inline std::array<uint64_t, 2> pack() const {
       std::array<uint64_t, 2> packed = {{0, 0}};
       ap_uint<BITWIDTH> bits = this->pack_ap();
-      packed[0] = bits;
-      packed[1] = bits >> 64;
-      ;  // for when there are more than 64 bits in the word
+      packed[0] = bits(63, 0);
+      packed[1] = bits(127, 64);
       return packed;
     }
 
