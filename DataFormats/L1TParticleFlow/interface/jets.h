@@ -45,7 +45,8 @@ namespace l1ct {
     float floatBtagScore() const { return Scales::floatBtagScore(hwBtagScore); }
     float floatMass() const { return Scales::floatMass(hwMass); }
 
-    static const int BITWIDTH = pt_t::width + glbeta_t::width + glbphi_t::width + z0_t::width + b_tag_score_t::width + mass2_t::width;    //l1ct types give 59, but vhdl expects 57
+    static const int BITWIDTH = pt_t::width + glbeta_t::width + glbphi_t::width + z0_t::width + b_tag_score_t::width +
+                                mass2_t::width;  //l1ct types give 59, but vhdl expects 57
     inline ap_uint<BITWIDTH> pack_ap() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
@@ -63,7 +64,8 @@ namespace l1ct {
       std::array<uint64_t, 2> packed = {{0, 0}};
       ap_uint<BITWIDTH> bits = this->pack_ap();
       packed[0] = bits;
-      packed[1] = bits >> 64;; // for when there are more than 64 bits in the word
+      packed[1] = bits >> 64;
+      ;  // for when there are more than 64 bits in the word
       return packed;
     }
 
@@ -80,7 +82,7 @@ namespace l1ct {
       unpack_from_bits(src, start, hwPhi);
       unpack_from_bits(src, start, hwZ0);
       unpack_from_bits(src, start, hwBtagScore);
-      start = 64; // Mass on second word
+      start = 64;  // Mass on second word
       unpack_from_bits(src, start, hwMass);
     }
 

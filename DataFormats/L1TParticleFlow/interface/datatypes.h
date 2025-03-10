@@ -8,7 +8,7 @@
 namespace l1ct {
 
   typedef ap_ufixed<14, 12, AP_TRN, AP_SAT> pt_t;
-  typedef ap_ufixed<20, 16, AP_TRN, AP_SAT> mass2_t; // can store up to 256 GeV with 0.25 GeV precision
+  typedef ap_ufixed<20, 16, AP_TRN, AP_SAT> mass2_t;  // can store up to 256 GeV with 0.25 GeV precision
   typedef ap_ufixed<10, 8, AP_TRN, AP_SAT> pt10_t;
   typedef ap_fixed<16, 14, AP_TRN, AP_SAT> dpt_t;
   typedef ap_ufixed<28, 24, AP_TRN, AP_SAT> pt2_t;

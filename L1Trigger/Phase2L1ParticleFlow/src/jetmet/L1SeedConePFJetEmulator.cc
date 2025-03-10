@@ -44,7 +44,8 @@ std::vector<L1SCJetEmu::Particle> L1SCJetEmu::sortConstituents(const std::vector
   std::vector<Particle> truncated;  // instantiate vector to store truncated, sorted parts
   truncated.resize(NCONSTITSFW);
   for (unsigned iConst = 0; iConst < NCONSTITSFW; ++iConst) {  // iterate over NCONSTITS (or truncated.size())
-    if (iConst < sortedParts.size()) {  // if iConst is less than the number of constituents in the jet then store the constituent
+    if (iConst <
+        sortedParts.size()) {  // if iConst is less than the number of constituents in the jet then store the constituent
       truncated[iConst].hwEta = static_cast<detaphi_t>(sortedParts.at(iConst).hwEta - seed.hwEta);
       truncated[iConst].hwPhi = static_cast<detaphi_t>(deltaPhi(sortedParts.at(iConst), seed));
       truncated[iConst].hwPt = sortedParts.at(iConst).hwPt;
@@ -130,7 +131,8 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts, const
   pt_etaphi_t sum_pt_phi = std::accumulate(pt_dphi.begin(), pt_dphi.end(), pt_etaphi_t(0));
   etaphi_t phi = seed.hwPhi + etaphi_t(sum_pt_phi * inv_pt);  // shift the seed by pt weighted sum_pt_phi
 
-  std::vector<Particle> truncated = sortConstituents(parts, seed);  // sort the constituents by pt and truncate to NCONSTITS
+  std::vector<Particle> truncated =
+      sortConstituents(parts, seed);  // sort the constituents by pt and truncate to NCONSTITS
   mass2_t mass = L1SCJetEmu::jetMass_HW(truncated);
 
   Jet jet;
@@ -139,7 +141,7 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts, const
   jet.hwPhi = phi;
   jet.hwMass = mass;
   // jet.constituents = parts;
-  jet.constituents = truncated;    // store the truncated, sorted NCONSTITSFW sparse array of constituents
+  jet.constituents = truncated;  // store the truncated, sorted NCONSTITSFW sparse array of constituents
 
   if (debug_) {
     std::for_each(pt_dphi.begin(), pt_dphi.end(), [](pt_etaphi_t& x) { dbgCout() << "pt_dphi: " << x << std::endl; });
