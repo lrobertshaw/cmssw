@@ -15,7 +15,7 @@ namespace l1ct {
     glbphi_t hwPhi;
     z0_t hwZ0;
     b_tag_score_t hwBtagScore;
-    mass2_t hwMass;
+    mass2_t hwMass;    // total bitwidth 77
 
     inline bool operator==(const Jet &other) const {
       return hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwMass == other.hwMass;
@@ -45,8 +45,7 @@ namespace l1ct {
     float floatBtagScore() const { return Scales::floatBtagScore(hwBtagScore); }
     float floatMass() const { return Scales::floatMass(hwMass); }
 
-    static const int BITWIDTH = pt_t::width + glbeta_t::width + glbphi_t::width + z0_t::width + b_tag_score_t::width +
-                                mass2_t::width;  //l1ct types give 59, but vhdl expects 57
+    static const int BITWIDTH = 128;//pt_t::width + glbeta_t::width + glbphi_t::width + z0_t::width + b_tag_score_t::width + mass2_t::width;  // 77
     inline ap_uint<BITWIDTH> pack_ap() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
