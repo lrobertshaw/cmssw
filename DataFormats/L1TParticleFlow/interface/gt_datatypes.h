@@ -26,8 +26,8 @@ namespace l1gt {
   typedef ap_fixed<14, 14, AP_RND_CONV, AP_SAT> eta_t;
   // While bitwise identical to the l1ct::z0_t value, we store z0 in mm to profit of ap_fixed goodies
   typedef ap_fixed<10, 9, AP_RND_CONV, AP_SAT> z0_t;  // NOTE: mm instead of cm!!!
-  // typedef ap_ufixed<10, 1, AP_RND, AP_SAT> b_tag_score_t;
-  typedef ap_fixed<10, 8, AP_RND_CONV, AP_SAT> mass_t;
+  typedef ap_ufixed<10, 1, AP_RND, AP_SAT> b_tag_score_t;
+  typedef ap_fixed<20, 16, AP_RND_CONV, AP_SAT> mass2_t;
   typedef ap_uint<1> valid_t;
 
   // E/gamma fields
@@ -49,7 +49,7 @@ namespace l1gt {
     inline float floatEta(eta_t eta) { return eta.to_float() * ETAPHI_LSB; }
     inline float floatPhi(phi_t phi) { return phi.to_float() * ETAPHI_LSB; }
     inline float floatZ0(z0_t z0) { return z0.to_float() * Z0_UNITS; }
-    inline float floatMass(mass_t mass) { return mass.to_float(); }
+    inline float floatMass(mass2_t mass) { return mass.to_float(); }
   }  // namespace Scales
 
   struct ThreeVector {
@@ -89,8 +89,8 @@ namespace l1gt {
     valid_t valid;
     ThreeVector v3;
     z0_t z0;
-    // b_tag_score_t hwBtagScore;
-    mass_t hwMass;
+    b_tag_score_t hwBtagScore;
+    mass2_t hwMass;
 
     inline bool operator==(const Jet &other) const { return valid == other.valid && z0 == other.z0 && hwMass == other.hwMass && v3 == other.v3; }
 
@@ -101,7 +101,7 @@ namespace l1gt {
       pack_into_bits(ret, start, valid);
       pack_into_bits(ret, start, v3.pack());
       pack_into_bits(ret, start, z0);
-      // pack_into_bits(ret, start, hwBtagScore);
+      pack_into_bits(ret, start, hwBtagScore);
       start = 64; // Put mass on second word
       pack_into_bits(ret, start, hwMass);
       return ret;
@@ -128,7 +128,7 @@ namespace l1gt {
       unpack_from_bits(src, start, v3.phi);
       unpack_from_bits(src, start, v3.eta);
       unpack_from_bits(src, start, z0);
-      // unpack_from_bits(src, start, hwBtagScore);
+      unpack_from_bits(src, start, hwBtagScore);
       start = 64; // Mass on second word
       unpack_from_bits(src, start, hwMass);
     }
@@ -397,7 +397,9 @@ namespace l1ct {
     return x * Scales::ETAPHI_CTtoGT_SCALE;
   }
 
-  inline l1gt::mass_t CTtoGT_mass(mass_t x) { return (l1gt::mass_t)x; }
+  inline l1gt::mass2_t CTtoGT_mass(mass2_t x) {
+    return (l1gt::mass2_t)x;
+  }
 
 }  // namespace l1ct
 

@@ -95,11 +95,7 @@ L1SCJetEmu::mass2_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts) c
   });
   npt_t sum_pz = std::accumulate(pz.begin(), pz.end(), npt_t(0));
 
-  std::cout << "Emulator mass: " << (sum_en * sum_en) - (sum_px * sum_px) - (sum_py * sum_py) - (sum_pz * sum_pz) << std::endl;
-
   return (sum_en * sum_en) - (sum_px * sum_px) - (sum_py * sum_py) - (sum_pz * sum_pz);
-  // mass2_t mass2 = (sum_en * sum_en) - (sum_px * sum_px) - (sum_py * sum_py) - (sum_pz * sum_pz);
-  // return std::sqrt(static_cast<float>(mass2));
 }
 
 L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts, const Particle seed) const {
