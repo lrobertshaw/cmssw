@@ -27,7 +27,8 @@ namespace l1gt {
   // While bitwise identical to the l1ct::z0_t value, we store z0 in mm to profit of ap_fixed goodies
   typedef ap_fixed<10, 9, AP_RND_CONV, AP_SAT> z0_t;  // NOTE: mm instead of cm!!!
   typedef ap_ufixed<10, 1, AP_RND, AP_SAT> b_tag_score_t;
-  typedef ap_ufixed<20, 16, AP_RND_CONV, AP_SAT> mass2_t;
+  // typedef ap_ufixed<20, 16, AP_RND_CONV, AP_SAT> mass2_t;
+  typedef ap_ufixed<17, 15, AP_RND_CONV, AP_SAT> mass2_t;
   typedef ap_uint<1> valid_t;
 
   // E/gamma fields
