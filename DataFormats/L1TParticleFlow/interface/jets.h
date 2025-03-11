@@ -15,7 +15,7 @@ namespace l1ct {
     glbphi_t hwPhi;
     z0_t hwZ0;
     // b_tag_score_t hwBtagScore;
-    mass2_t hwMass;    // total bitwidth 77
+    mass2_t hwMass;  // total bitwidth 77
 
     inline bool operator==(const Jet &other) const {
       return hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwMass == other.hwMass;
