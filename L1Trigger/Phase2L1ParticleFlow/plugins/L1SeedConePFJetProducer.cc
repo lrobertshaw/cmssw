@@ -141,26 +141,8 @@ l1t::PFJet L1SeedConePFJetProducer::makeJet_SW(const std::vector<edm::Ptr<l1t::P
   auto sumpz = [](float a, const edm::Ptr<l1t::PFCandidate>& b) { return a + (b->pt() * std::sinh(b->eta())); };
   float pz_tot = std::accumulate(parts.begin(), parts.end(), 0.0, sumpz);
 
-  float mass = std::sqrt((en_tot * en_tot) - (px_tot * px_tot) - (py_tot * py_tot) - (pz_tot * pz_tot));
-
-  // // mass
-  // float E_tot = 0.0;
-  // float px_tot = 0.0;
-  // float py_tot = 0.0;
-  // float pz_tot = 0.0;
-  // for (auto it = parts.begin(); it != parts.end(); it++) {
-  //   float m = (*it)->mass();
-  //   float px = (*it)->pt() * std::cos( (*it)->phi() );
-  //   float py = (*it)->pt() * std::sin( (*it)->phi() );
-  //   float pz = (*it)->pt() * std::sinh( (*it)->eta() );
-  //   float E = sqrt( m*m + px*px + py*py + pz*pz );
-
-  //   E_tot += E;
-  //   px_tot += px;
-  //   py_tot += py;
-  //   pz_tot += pz;
-  // }
-  // float mass = std::sqrt( (E_tot*E_tot) - (px_tot*px_tot) - (py_tot*py_tot) - (pz_tot*pz_tot) );
+  // float mass = std::sqrt((en_tot * en_tot) - (px_tot * px_tot) - (py_tot * py_tot) - (pz_tot * pz_tot));
+  float mass = std::sqrt((en_tot * en_tot) - (pt * pt) - (pz_tot * pz_tot));
 
   l1t::PFJet jet(pt, eta, phi, mass);
 

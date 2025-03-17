@@ -96,7 +96,13 @@ L1SCJetEmu::mass2_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts) c
   });
   npt_t sum_pz = std::accumulate(pz.begin(), pz.end(), npt_t(0));
 
-  return (sum_en * sum_en) - (sum_px * sum_px) - (sum_py * sum_py) - (sum_pz * sum_pz);
+  std::vector<pt_t> pt;
+  pt.resize(parts.size());
+  std::transform(parts.begin(), parts.end(), pt.begin(), [](const Particle& part) { return part.hwPt; });
+  pt_t sum_pt = std::accumulate(pt.begin(), pt.end(), pt_t(0));
+
+  // return (sum_en * sum_en) - (sum_px * sum_px) - (sum_py * sum_py) - (sum_pz * sum_pz);
+  return (sum_en * sum_en) - (sum_pt * sum_pt) - (sum_pz * sum_pz);
 }
 
 L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts, const Particle seed) const {
