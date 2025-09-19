@@ -1,0 +1,3 @@
+[submodule "DPGAnalysis/Phase2L1TNanoAOD/submission"]
+	path = DPGAnalysis/Phase2L1TNanoAOD/submission
+	url = git@github.com:lrobertshaw/menutools_submission.git
