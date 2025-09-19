@@ -1,3 +1,4 @@
-[submodule "DPGAnalysis/Phase2L1TNanoAOD/submission"]
-	path = DPGAnalysis/Phase2L1TNanoAOD/submission
-	url = git@github.com:lrobertshaw/menutools_submission.git
+[submodule "condor"]
+    path = condor
+    url = git@github.com:lrobertshaw/condor.git
+    branch = menu_tools
